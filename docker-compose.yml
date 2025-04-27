@@ -1,0 +1,30 @@
+version: '3'
+services:
+  postgres:
+    image: postgres:17
+    container_name: folks-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: folks
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfiles/Dockerfile.nest
+    container_name: folks-nestjs
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: "postgresql://postgres:postgres@postgres:5432/folks"
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:

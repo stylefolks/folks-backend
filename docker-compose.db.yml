@@ -1,0 +1,18 @@
+version: '3'
+services:
+  postgres:
+    build:
+      context: .
+      dockerfile: Dockerfiles/Dockerfile.postgres
+    container_name: folks-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: folks
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
