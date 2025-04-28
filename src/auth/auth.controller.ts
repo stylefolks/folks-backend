@@ -1,6 +1,17 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpException,
+  HttpStatus,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UserService } from 'src/user/user.service';
+import { JwtAuthGuard } from './guard/jwt-auth.guard';
+import { RequestWithUser } from './types/request-with-user';
 
 @Controller('auth')
 export class AuthController {
@@ -9,6 +20,12 @@ export class AuthController {
     private readonly userService: UserService,
   ) {}
 
+  @UseGuards(JwtAuthGuard)
+  @Get('me')
+  me(@Req() req: RequestWithUser) {
+    return req.user;
+  }
+
   @Post('login')
   async login(
     @Body('email') email: string,
@@ -16,7 +33,7 @@ export class AuthController {
   ) {
     const user = await this.userService.login(email, password);
     if (!user) {
-      throw new Error('Invalid credentials');
+      throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED);
     }
     return this.authService.login(user);
   }
