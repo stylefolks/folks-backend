@@ -12,6 +12,7 @@ import { AuthService } from './auth.service';
 import { UserService } from 'src/user/user.service';
 import { JwtAuthGuard } from './guard/jwt-auth.guard';
 import { RequestWithUser } from './types/request-with-user';
+import { MeResponseDto } from './dto/me-response.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -22,7 +23,7 @@ export class AuthController {
 
   @UseGuards(JwtAuthGuard)
   @Get('me')
-  me(@Req() req: RequestWithUser) {
+  me(@Req() req: RequestWithUser): MeResponseDto {
     return req.user;
   }
 
