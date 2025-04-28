@@ -10,10 +10,17 @@ importers:
     dependencies:
       '@nestjs/common':
         specifier: ^11.0.1
+<<<<<<< HEAD
         version: 11.1.0(class-transformer@0.5.1)(class-validator@0.14.2)(reflect-metadata@0.2.2)(rxjs@7.8.2)
       '@nestjs/config':
         specifier: ^4.0.2
         version: 4.0.2(@nestjs/common@11.1.0(class-transformer@0.5.1)(class-validator@0.14.2)(reflect-metadata@0.2.2)(rxjs@7.8.2))(rxjs@7.8.2)
+=======
+        version: 11.1.0(reflect-metadata@0.2.2)(rxjs@7.8.2)
+      '@nestjs/config':
+        specifier: ^4.0.2
+        version: 4.0.2(@nestjs/common@11.1.0(reflect-metadata@0.2.2)(rxjs@7.8.2))(rxjs@7.8.2)
+>>>>>>> 14350d1 (feat: 토큰 발행, bcrypt, ConfigModule 적용)
       '@nestjs/core':
         specifier: ^11.0.1
         version: 11.1.0(@nestjs/common@11.1.0(class-transformer@0.5.1)(class-validator@0.14.2)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/platform-express@11.1.0)(reflect-metadata@0.2.2)(rxjs@7.8.2)
@@ -32,12 +39,15 @@ importers:
       bcryptjs:
         specifier: ^3.0.2
         version: 3.0.2
+<<<<<<< HEAD
       class-transformer:
         specifier: ^0.5.1
         version: 0.5.1
       class-validator:
         specifier: ^0.14.2
         version: 0.14.2
+=======
+>>>>>>> 14350d1 (feat: 토큰 발행, bcrypt, ConfigModule 적용)
       passport:
         specifier: ^0.7.0
         version: 0.7.0
@@ -4537,7 +4547,19 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+<<<<<<< HEAD
   '@nestjs/config@4.0.2(@nestjs/common@11.1.0(class-transformer@0.5.1)(class-validator@0.14.2)(reflect-metadata@0.2.2)(rxjs@7.8.2))(rxjs@7.8.2)':
+=======
+  '@nestjs/config@4.0.2(@nestjs/common@11.1.0(reflect-metadata@0.2.2)(rxjs@7.8.2))(rxjs@7.8.2)':
+    dependencies:
+      '@nestjs/common': 11.1.0(reflect-metadata@0.2.2)(rxjs@7.8.2)
+      dotenv: 16.4.7
+      dotenv-expand: 12.0.1
+      lodash: 4.17.21
+      rxjs: 7.8.2
+
+  '@nestjs/core@11.1.0(@nestjs/common@11.1.0(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/platform-express@11.1.0)(reflect-metadata@0.2.2)(rxjs@7.8.2)':
+>>>>>>> 14350d1 (feat: 토큰 발행, bcrypt, ConfigModule 적용)
     dependencies:
       '@nestjs/common': 11.1.0(class-transformer@0.5.1)(class-validator@0.14.2)(reflect-metadata@0.2.2)(rxjs@7.8.2)
       dotenv: 16.4.7

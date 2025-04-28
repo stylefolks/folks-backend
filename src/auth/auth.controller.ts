@@ -23,6 +23,12 @@ export class AuthController {
     return this.authService.signup(email, username, password);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Get('me')
+  me(@Req() req: RequestWithUser) {
+    return req.user;
+  }
+
   @Post('login')
   async login(@Body() loginDto: LoginDto) {
     const { email, password } = loginDto;
