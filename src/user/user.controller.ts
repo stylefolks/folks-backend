@@ -28,13 +28,17 @@ export class UserController {
 
   @UseGuards(JwtAuthGuard)
   @Patch('me')
-  updateMe(@Req() req: RequestWithUser, @Body() updateDto: UpdateUserDto) {
-    return this.userService.updateUser(req.user.userId, updateDto);
+  async updateMe(
+    @Req() req: RequestWithUser,
+    @Body() updateDto: UpdateUserDto,
+  ) {
+    return await this.userService.updateUser(req.user.userId, updateDto);
   }
 
   @UseGuards(JwtAuthGuard)
   @Delete('me')
-  deleteMe(@Req() req: RequestWithUser) {
+  async deleteMe(@Req() req: RequestWithUser) {
+    await this.userService.deleteUser(req.user.userId);
     return {}; // deleteUser 구현 예정
   }
 }
