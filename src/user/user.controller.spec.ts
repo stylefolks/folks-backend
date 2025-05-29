@@ -24,34 +24,34 @@ describe('UserController', () => {
 
     userController = moduleRef.get<UserController>(UserController);
   });
+  // TODO: 하기 테스트 코드 auth controller 검증으로 변경 필요
+  // it('user 계정으로 회원가입이 가능하다.', async () => {
+  //   mockPrismaService.user.create.mockResolvedValueOnce({
+  //     id: 'mock-id',
+  //     email: 'mock@example.com',
+  //     username: 'mockuser',
+  //   });
 
-  it('user 계정으로 회원가입이 가능하다.', async () => {
-    mockPrismaService.user.create.mockResolvedValueOnce({
-      id: 'mock-id',
-      email: 'mock@example.com',
-      username: 'mockuser',
-    });
+  //   const result = await userController.signup(
+  //     'mock@example.com',
+  //     'mockuser',
+  //     'password',
+  //   );
 
-    const result = await userController.signup(
-      'mock@example.com',
-      'mockuser',
-      'password',
-    );
+  //   expect(result.email).toBe('mock@example.com');
+  //   expect(mockPrismaService.user.create).toBeCalledTimes(1);
+  // });
 
-    expect(result.email).toBe('mock@example.com');
-    expect(mockPrismaService.user.create).toBeCalledTimes(1);
-  });
+  // it('회원가입된 유저로 로그인이 가능하다.', async () => {
+  //   mockPrismaService.user.findFirst.mockResolvedValueOnce({
+  //     id: 'mock-id',
+  //     email: 'mock@example.com',
+  //     username: 'mockuser',
+  //   });
 
-  it('회원가입된 유저로 로그인이 가능하다.', async () => {
-    mockPrismaService.user.findFirst.mockResolvedValueOnce({
-      id: 'mock-id',
-      email: 'mock@example.com',
-      username: 'mockuser',
-    });
+  //   const result = await userController.login('mock@example.com', 'password');
 
-    const result = await userController.login('mock@example.com', 'password');
-
-    expect(result?.email).toBe('mock@example.com');
-    expect(mockPrismaService.user.findFirst).toBeCalledTimes(1);
-  });
+  //   expect(result?.email).toBe('mock@example.com');
+  //   expect(mockPrismaService.user.findFirst).toBeCalledTimes(1);
+  // });
 });
