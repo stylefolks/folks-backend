@@ -1,24 +1,40 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Patch,
+  Delete,
+  Body,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
+import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
+import { RequestWithUser } from 'src/auth/types/request-with-user';
+import { UpdateUserDto } from './dto/update-user.dto';
 import { UserService } from './user.service';
 
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Post('signup')
-  async signup(
-    @Body('email') email: string,
-    @Body('username') username: string,
-    @Body('password') password: string,
-  ) {
-    return this.userService.signup(email, username, password);
+  @UseGuards(JwtAuthGuard)
+  @Get('me')
+  getMe(@Req() req: RequestWithUser) {
+    return {
+      userId: req.user.userId,
+      email: req.user.email,
+      username: req.user.username,
+    };
   }
 
-  @Post('login')
-  async login(
-    @Body('email') email: string,
-    @Body('password') password: string,
-  ) {
-    return this.userService.login(email, password);
+  @UseGuards(JwtAuthGuard)
+  @Patch('me')
+  updateMe(@Req() req: RequestWithUser, @Body() updateDto: UpdateUserDto) {
+    return this.userService.updateUser(req.user.userId, updateDto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete('me')
+  deleteMe(@Req() req: RequestWithUser) {
+    return {}; // deleteUser 구현 예정
   }
 }

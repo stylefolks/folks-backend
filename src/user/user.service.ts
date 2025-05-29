@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcryptjs';
+import { UpdateUserDto } from './dto/update-user.dto';
 
+// * TODO login과 signup은 auth service로 이동하여 합칠 필요가 있다.
 @Injectable()
 export class UserService {
   constructor(private readonly prisma: PrismaService) {}
@@ -36,5 +38,12 @@ export class UserService {
     if (!isPasswordValid) return null;
 
     return user;
+  }
+
+  async updateUser(userId: string, updateUserDto: UpdateUserDto) {
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: updateUserDto,
+    });
   }
 }

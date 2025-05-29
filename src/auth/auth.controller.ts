@@ -27,6 +27,15 @@ export class AuthController {
     return req.user;
   }
 
+  @Post('signup')
+  async signup(
+    @Body('email') email: string,
+    @Body('username') username: string,
+    @Body('password') password: string,
+  ) {
+    return this.userService.signup(email, username, password);
+  }
+
   @Post('login')
   async login(
     @Body('email') email: string,
