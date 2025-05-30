@@ -19,7 +19,9 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "db:up": "docker compose -f docker-compose.db.yml up -d",
-    "db:down": "docker compose -f docker-compose.db.yml down"
+    "db:down": "docker compose -f docker-compose.db.yml down",
+    "db:scheme": "npx prisma studio",
+    "db:prisma:drop": "npx prisma migrate reset"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",

@@ -15,20 +15,41 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   deletedAt DateTime?
+  //1:N
   posts     Post[]
 }
 
 model Post {
-  id        String   @id @default(uuid())
-  title     String
-  content   String
-  author    User     @relation(fields: [authorId], references: [id])
-  authorId  String
-  createdAt DateTime @default(now())
+  id         String    @id @default(uuid())
+  type       PostType
+  title      String
+  // ProseMirror content 저장을 위해 Json으로 지정
+  content    Json      
+  isDraft    Boolean   @default(false)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  // N:1
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId   String
+  // N:M
+  tags       Tag[]     @relation("PostTags")
+
+  @@index([type, createdAt])
 }
 
 model Tag {
   id        String   @id @default(uuid())
   name      String   @unique
   createdAt DateTime @default(now())
+  // M:N
+  posts Post[]  @relation("PostTags")
+}
+
+
+enum PostType {
+  TALK
+  COLUMN
+  CREW
+  BRAND
+  NOTICE
 }
