@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 
+// * TODO login과 signup은 auth service로 이동하여 합칠 필요가 있다.
 @Injectable()
 export class UserService {
   constructor(private readonly prisma: PrismaService) {}
