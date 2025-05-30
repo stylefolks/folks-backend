@@ -6,12 +6,6 @@ import { UpdateUserDto } from './dto/update-user.dto';
 export class UserService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findById(userId: string) {
-    return this.prisma.user.findUnique({
-      where: { id: userId },
-    });
-  }
-
   async updateUser(userId: string, updateUserDto: UpdateUserDto) {
     return this.prisma.user.update({
       where: { id: userId },
