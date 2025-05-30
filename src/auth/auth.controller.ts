@@ -1,13 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  HttpException,
-  HttpStatus,
-  Post,
-  Req,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UserService } from 'src/user/user.service';
 import { JwtAuthGuard } from './guard/jwt-auth.guard';
@@ -33,7 +24,7 @@ export class AuthController {
     @Body('username') username: string,
     @Body('password') password: string,
   ) {
-    return this.userService.signup(email, username, password);
+    return this.authService.signup(email, username, password);
   }
 
   @Post('login')
@@ -41,10 +32,6 @@ export class AuthController {
     @Body('email') email: string,
     @Body('password') password: string,
   ) {
-    const user = await this.userService.login(email, password);
-    if (!user) {
-      throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED);
-    }
-    return this.authService.login(user);
+    return await this.authService.login(email, password);
   }
 }
