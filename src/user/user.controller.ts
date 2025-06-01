@@ -8,9 +8,10 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
-import { RequestWithUser } from 'src/auth/types/request-with-user';
+
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserService } from './user.service';
+import { RequestWithUser } from 'src/common/types/request-with-user';
 
 @Controller('user')
 export class UserController {
@@ -20,7 +21,7 @@ export class UserController {
   @Get('me')
   getMe(@Req() req: RequestWithUser) {
     return {
-      userId: req.user.userId,
+      userId: req.user.id,
       email: req.user.email,
       username: req.user.username,
     };
@@ -32,13 +33,13 @@ export class UserController {
     @Req() req: RequestWithUser,
     @Body() updateDto: UpdateUserDto,
   ) {
-    return await this.userService.updateUser(req.user.userId, updateDto);
+    return await this.userService.updateUser(req.user.id, updateDto);
   }
 
   @UseGuards(JwtAuthGuard)
   @Delete('me')
   async deleteMe(@Req() req: RequestWithUser) {
-    await this.userService.deleteUser(req.user.userId);
+    await this.userService.deleteUser(req.user.id);
     return {}; // deleteUser 구현 예정
   }
 }

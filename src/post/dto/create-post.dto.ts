@@ -1,4 +1,10 @@
-import { IsString, IsEnum, IsBoolean, IsOptional } from 'class-validator';
+import {
+  IsString,
+  IsEnum,
+  IsBoolean,
+  IsOptional,
+  IsObject,
+} from 'class-validator';
 import { PostType } from '@prisma/client';
 
 export class CreatePostDto {
@@ -8,8 +14,8 @@ export class CreatePostDto {
   @IsString()
   title: string;
 
-  @IsString()
-  content: string; // ProseMirror JSON을 stringified 상태로 받는다고 가정
+  @IsObject()
+  content: Record<string, any>; // ProseMirror JSON을 stringified 상태로 받는다고 가정
 
   @IsOptional()
   @IsBoolean()

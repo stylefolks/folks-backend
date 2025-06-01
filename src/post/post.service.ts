@@ -38,14 +38,13 @@ export class PostService {
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const type = dto.type;
-    const parsedContent = this.parsingContent(content);
 
     return this.prisma.post.create({
       data: {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         type,
         title,
-        content: parsedContent,
+        content,
         isDraft,
         authorId: userId,
         tags: {

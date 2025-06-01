@@ -1,5 +1,5 @@
 export class MeResponseDto {
-  userId: string;
+  id: string;
   email: string;
   username: string;
 }

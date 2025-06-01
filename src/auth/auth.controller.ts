@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './guard/jwt-auth.guard';
-import { RequestWithUser } from './types/request-with-user';
+import { RequestWithUser } from 'src/common/types/request-with-user';
 import { MeResponseDto } from './dto/me-response.dto';
 import { SignupDto } from './dto/signup.dto';
 import { LoginDto } from './dto/login.dto';
