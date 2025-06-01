@@ -30,7 +30,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
     //req.user에 해당 정보 항상 세팅.
     return {
-      userId: user.id,
+      id: user.id,
       email: user.email,
       username: user.username,
     };
