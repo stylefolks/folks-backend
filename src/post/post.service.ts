@@ -1,7 +1,10 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { PostType } from '@prisma/client';
+import { GetPostsDto } from './dto/get-posts.dto';
 
 @Injectable()
 export class PostService {
@@ -14,18 +17,6 @@ export class PostService {
         create: { name },
       })) || []
     );
-  }
-
-  parsingContent(content: string) {
-    let parsedContent: string;
-
-    try {
-      parsedContent = JSON.parse(content) as string;
-    } catch {
-      throw new Error('@Format Error while parsing post content');
-    }
-
-    return parsedContent;
   }
 
   async createPost(dto: CreatePostDto, userId: string) {
@@ -55,5 +46,65 @@ export class PostService {
         tags: true,
       },
     });
+  }
+
+  async getPosts(dto: GetPostsDto) {
+    const { take = '10', cursor, tags } = dto;
+    const postType = dto.postType;
+    const takeNum = parseInt(take, 10);
+
+    const where: any = {
+      isDraft: false,
+    };
+
+    if (postType) {
+      where.type = postType;
+    }
+
+    if (tags && tags.length > 0) {
+      where.tags = {
+        some: {
+          name: {
+            in: tags,
+          },
+        },
+      };
+    }
+
+    const posts = await this.prisma.post.findMany({
+      where,
+      orderBy: {
+        createdAt: 'desc',
+      },
+      take: takeNum + 1, // +1 to check for next page
+      ...(cursor && {
+        cursor: {
+          id: cursor,
+        },
+        skip: 1,
+      }),
+      include: {
+        tags: true,
+        author: {
+          select: {
+            id: true,
+            username: true,
+          },
+        },
+      },
+    });
+
+    const totalCount = await this.prisma.post.count({ where });
+    const hasNextPage = posts.length > takeNum;
+    const nextCursor = hasNextPage ? posts[takeNum].id : null;
+
+    return {
+      posts: posts.slice(0, takeNum),
+      pageInfo: {
+        totalCount,
+        hasNextPage,
+        nextCursor,
+      },
+    };
   }
 }
