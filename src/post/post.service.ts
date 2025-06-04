@@ -20,7 +20,7 @@ export class PostService {
   }
 
   async createPost(dto: CreatePostDto, userId: string) {
-    const { title, content, isDraft, tagNames } = dto;
+    const { title, content, isDraft, tagNames, crewId } = dto;
 
     if (!Object.values(PostType).includes(dto.type)) {
       //알 수 없는 이유로 $Enum.PostType이 계속 일반 변수에도 할당되지 않으므로 타입 가드 추가
@@ -38,6 +38,7 @@ export class PostService {
         content,
         isDraft,
         authorId: userId,
+        ...(crewId && { crewId }),
         tags: {
           connectOrCreate: this.makeTags(tagNames),
         },
@@ -49,7 +50,7 @@ export class PostService {
   }
 
   async getPosts(dto: GetPostsDto) {
-    const { take = '10', cursor, tags } = dto;
+    const { take = '10', cursor, tags, crewId } = dto;
     const postType = dto.postType;
     const takeNum = parseInt(take, 10);
 
@@ -69,6 +70,10 @@ export class PostService {
           },
         },
       };
+    }
+
+    if (crewId) {
+      where.crewId = crewId;
     }
 
     const posts = await this.prisma.post.findMany({

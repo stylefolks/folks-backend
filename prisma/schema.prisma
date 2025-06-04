@@ -12,11 +12,17 @@ model User {
   email     String   @unique
   username  String
   password  String
+  role      UserRole @default(USER)
+  influencerLevel InfluencerLevel @default(NONE)
+  bio       String?
+  imageUrl  String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   deletedAt DateTime?
   //1:N
   posts     Post[]
+  crewsOwned  Crew[]     @relation("CrewOwner")
+  crewMembers CrewMember[]
 }
 
 model Post {
@@ -24,13 +30,16 @@ model Post {
   type       PostType
   title      String
   // ProseMirror content 저장을 위해 Json으로 지정
-  content    Json      
+  content    Json
   isDraft    Boolean   @default(false)
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
   // N:1
   author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
   authorId   String
+  // Crew relation (optional)
+  crew     Crew?   @relation(fields: [crewId], references: [id])
+  crewId   String?
   // N:M
   tags       Tag[]     @relation("PostTags")
 
@@ -43,6 +52,48 @@ model Tag {
   createdAt DateTime @default(now())
   // M:N
   posts Post[]  @relation("PostTags")
+}
+
+model Crew {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  coverImage  String?
+  links       Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  owner     User   @relation("CrewOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  ownerId   String
+  posts     Post[]
+  members   CrewMember[]
+
+  @@unique([name])
+}
+
+model CrewMember {
+  crew     Crew   @relation(fields: [crewId], references: [id], onDelete: Cascade)
+  crewId   String
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId   String
+  joinedAt DateTime @default(now())
+
+  @@id([crewId, userId])
+}
+
+enum UserRole {
+  USER
+  PUBLISHER
+  INFLUENCER
+  BRAND
+  MASTER
+}
+
+enum InfluencerLevel {
+  NONE
+  BRONZE
+  SILVER
+  GOLD
 }
 
 

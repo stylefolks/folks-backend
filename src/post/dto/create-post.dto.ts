@@ -23,4 +23,8 @@ export class CreatePostDto {
 
   @IsOptional()
   tagNames?: string[]; // 태그 이름 배열로 전달
+
+  @IsOptional()
+  @IsString()
+  crewId?: string;
 }
