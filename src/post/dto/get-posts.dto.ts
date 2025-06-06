@@ -26,4 +26,8 @@ export class GetPostsDto {
   @IsString({ each: true })
   @Type(() => String)
   tags?: string[];
+
+  @IsOptional()
+  @IsString()
+  crewId?: string;
 }
