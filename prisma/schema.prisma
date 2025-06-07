@@ -45,6 +45,7 @@ model Post {
   crewId   String?
   // N:M
   tags       Tag[]     @relation("PostTags")
+  comments   Comment[]
 
   @@index([type, createdAt])
 }
@@ -92,6 +93,23 @@ model PostLike {
   likedAt DateTime @default(now())
 
   @@id([postId, userId])
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId String
+  post     Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId   String
+  parent   Comment? @relation("CommentToParent", fields: [parentId], references: [id], onDelete: Cascade)
+  parentId String?
+  replies  Comment[] @relation("CommentToParent")
+
+  @@index([postId, createdAt])
 }
 
 model Follow {
