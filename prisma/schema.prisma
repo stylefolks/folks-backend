@@ -23,6 +23,9 @@ model User {
   posts     Post[]
   crewsOwned  Crew[]     @relation("CrewOwner")
   crewMembers CrewMember[]
+  likes       PostLike[]
+  followers   Follow[]   @relation("FollowingUser")
+  following   Follow[]   @relation("FollowerUser")
 }
 
 model Post {
@@ -79,6 +82,26 @@ model CrewMember {
   joinedAt DateTime @default(now())
 
   @@id([crewId, userId])
+}
+
+model PostLike {
+  post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId String
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+  likedAt DateTime @default(now())
+
+  @@id([postId, userId])
+}
+
+model Follow {
+  follower   User @relation("FollowerUser", fields: [followerId], references: [id], onDelete: Cascade)
+  followerId String
+  following  User @relation("FollowingUser", fields: [followingId], references: [id], onDelete: Cascade)
+  followingId String
+  followedAt DateTime @default(now())
+
+  @@id([followerId, followingId])
 }
 
 enum UserRole {
