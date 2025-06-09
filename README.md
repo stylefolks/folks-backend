@@ -40,8 +40,8 @@
 - [x] 게시글 타입 필드 (TALK, COLUMN, CREW 등)
 - [x] ProseMirror 기반 에디터 연동 (저장 구조 고민 필요) -> 임시 JSON 선택
 - [x] 임시저장 기능 (isDraft)
-- [ ] 게시글 CRUD API 🏃
-- [ ] 게시글 목록/상세 API
+- [x] 게시글 CRUD API 🏃
+- [x] 게시글 목록/상세 API
 
 ## 🎪 CREW 페이지 생성/조회
 

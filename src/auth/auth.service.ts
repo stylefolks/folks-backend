@@ -21,7 +21,9 @@ export class AuthService {
 
     //TLDR; 입력받은 비밀번호"와 "저장된 해시 비밀번호" 비교검증
     const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) return null;
+    if (!isPasswordValid) {
+      throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED);
+    }
 
     const payload = { sub: user.id, email: user.email };
     const accessToken = this.jwtService.sign(payload);
