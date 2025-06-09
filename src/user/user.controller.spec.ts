@@ -1,14 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
-import { PrismaService } from '../prisma/prisma.service';
 
-const mockPrismaService = {
-  user: {
-    create: jest.fn(),
-    findFirst: jest.fn(),
-  },
+const mockUserService = {
+  updateUser: jest.fn(),
 };
+
 
 describe('UserController', () => {
   let userController: UserController;
@@ -16,42 +13,24 @@ describe('UserController', () => {
   beforeEach(async () => {
     const moduleRef: TestingModule = await Test.createTestingModule({
       controllers: [UserController],
-      providers: [
-        UserService,
-        { provide: PrismaService, useValue: mockPrismaService },
-      ],
+      providers: [{ provide: UserService, useValue: mockUserService }],
     }).compile();
 
     userController = moduleRef.get<UserController>(UserController);
   });
-  // TODO: 하기 테스트 코드 auth controller 검증으로 변경 필요
-  // it('user 계정으로 회원가입이 가능하다.', async () => {
-  //   mockPrismaService.user.create.mockResolvedValueOnce({
-  //     id: 'mock-id',
-  //     email: 'mock@example.com',
-  //     username: 'mockuser',
-  //   });
 
-  //   const result = await userController.signup(
-  //     'mock@example.com',
-  //     'mockuser',
-  //     'password',
-  //   );
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
 
-  //   expect(result.email).toBe('mock@example.com');
-  //   expect(mockPrismaService.user.create).toBeCalledTimes(1);
-  // });
+  it('updateMe calls service with user id', async () => {
+    mockUserService.updateUser.mockResolvedValue({ id: '1' });
+    const req: any = { user: { id: '1' } };
 
-  // it('회원가입된 유저로 로그인이 가능하다.', async () => {
-  //   mockPrismaService.user.findFirst.mockResolvedValueOnce({
-  //     id: 'mock-id',
-  //     email: 'mock@example.com',
-  //     username: 'mockuser',
-  //   });
+    const dto: any = { bio: 'hi' };
+    const result = await userController.updateMe(req, dto);
 
-  //   const result = await userController.login('mock@example.com', 'password');
-
-  //   expect(result?.email).toBe('mock@example.com');
-  //   expect(mockPrismaService.user.findFirst).toBeCalledTimes(1);
-  // });
+    expect(mockUserService.updateUser).toHaveBeenCalledWith('1', dto);
+    expect(result).toEqual({ id: '1' });
+  });
 });

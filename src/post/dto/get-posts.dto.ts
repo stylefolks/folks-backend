@@ -6,7 +6,7 @@ import {
   IsNumberString,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { PostType } from '@prisma/client';
+import { PostType } from 'src/prisma/post-type';
 
 export class GetPostsDto {
   @IsOptional()
@@ -26,4 +26,8 @@ export class GetPostsDto {
   @IsString({ each: true })
   @Type(() => String)
   tags?: string[];
+
+  @IsOptional()
+  @IsString()
+  crewId?: string;
 }

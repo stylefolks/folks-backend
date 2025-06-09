@@ -8,31 +8,46 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  username  String
-  password  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  deletedAt DateTime?
+  id              String          @id @default(uuid())
+  email           String          @unique
+  username        String
+  password        String
+  role            UserRole        @default(USER)
+  influencerLevel InfluencerLevel @default(NONE)
+  bio             String?
+  imageUrl        String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  deletedAt       DateTime?
   //1:N
-  posts     Post[]
+  posts           Post[]
+  crewsOwned      Crew[]          @relation("CrewOwner")
+  crewMembers     CrewMember[]
+  likes           PostLike[]
+  followers       Follow[]        @relation("FollowingUser")
+  following       Follow[]        @relation("FollowerUser")
+  Comment         Comment[]
 }
 
 model Post {
-  id         String    @id @default(uuid())
-  type       PostType
-  title      String
+  id        String     @id @default(uuid())
+  type      PostType
+  title     String
   // ProseMirror content 저장을 위해 Json으로 지정
-  content    Json      
-  isDraft    Boolean   @default(false)
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
+  content   Json
+  isDraft   Boolean    @default(false)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
   // N:1
-  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  authorId   String
+  author    User       @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId  String
+  // Crew relation (optional)
+  crew      Crew?      @relation(fields: [crewId], references: [id])
+  crewId    String?
   // N:M
-  tags       Tag[]     @relation("PostTags")
+  tags      Tag[]      @relation("PostTags")
+  comments  Comment[]
+  PostLike  PostLike[]
 
   @@index([type, createdAt])
 }
@@ -42,9 +57,87 @@ model Tag {
   name      String   @unique
   createdAt DateTime @default(now())
   // M:N
-  posts Post[]  @relation("PostTags")
+  posts     Post[]   @relation("PostTags")
 }
 
+model Crew {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  coverImage  String?
+  links       Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  owner   User         @relation("CrewOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  ownerId String
+  posts   Post[]
+  members CrewMember[]
+
+  @@unique([name])
+}
+
+model CrewMember {
+  crew     Crew     @relation(fields: [crewId], references: [id], onDelete: Cascade)
+  crewId   String
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId   String
+  joinedAt DateTime @default(now())
+
+  @@id([crewId, userId])
+}
+
+model PostLike {
+  post    Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId  String
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId  String
+  likedAt DateTime @default(now())
+
+  @@id([postId, userId])
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  author   User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId String
+  post     Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId   String
+  parent   Comment?  @relation("CommentToParent", fields: [parentId], references: [id], onDelete: Cascade)
+  parentId String?
+  replies  Comment[] @relation("CommentToParent")
+
+  @@index([postId, createdAt])
+}
+
+model Follow {
+  follower    User     @relation("FollowerUser", fields: [followerId], references: [id], onDelete: Cascade)
+  followerId  String
+  following   User     @relation("FollowingUser", fields: [followingId], references: [id], onDelete: Cascade)
+  followingId String
+  followedAt  DateTime @default(now())
+
+  @@id([followerId, followingId])
+}
+
+enum UserRole {
+  USER
+  PUBLISHER
+  INFLUENCER
+  BRAND
+  MASTER
+}
+
+enum InfluencerLevel {
+  NONE
+  BRONZE
+  SILVER
+  GOLD
+}
 
 enum PostType {
   TALK

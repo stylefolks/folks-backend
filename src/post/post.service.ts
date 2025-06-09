@@ -1,10 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-import { Injectable } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreatePostDto } from './dto/create-post.dto';
-import { PostType } from '@prisma/client';
+import { PostType } from 'src/prisma/post-type';
 import { GetPostsDto } from './dto/get-posts.dto';
+import { UpdatePostDto } from './dto/update-post.dto';
 
 @Injectable()
 export class PostService {
@@ -20,7 +21,7 @@ export class PostService {
   }
 
   async createPost(dto: CreatePostDto, userId: string) {
-    const { title, content, isDraft, tagNames } = dto;
+    const { title, content, isDraft, tagNames, crewId } = dto;
 
     if (!Object.values(PostType).includes(dto.type)) {
       //알 수 없는 이유로 $Enum.PostType이 계속 일반 변수에도 할당되지 않으므로 타입 가드 추가
@@ -38,6 +39,7 @@ export class PostService {
         content,
         isDraft,
         authorId: userId,
+        ...(crewId && { crewId }),
         tags: {
           connectOrCreate: this.makeTags(tagNames),
         },
@@ -49,7 +51,7 @@ export class PostService {
   }
 
   async getPosts(dto: GetPostsDto) {
-    const { take = '10', cursor, tags } = dto;
+    const { take = '10', cursor, tags, crewId } = dto;
     const postType = dto.postType;
     const takeNum = parseInt(take, 10);
 
@@ -69,6 +71,10 @@ export class PostService {
           },
         },
       };
+    }
+
+    if (crewId) {
+      where.crewId = crewId;
     }
 
     const posts = await this.prisma.post.findMany({
@@ -106,5 +112,58 @@ export class PostService {
         nextCursor,
       },
     };
+  }
+
+  async getPostById(postId: string) {
+    return this.prisma.post.findUnique({
+      where: { id: postId },
+      include: {
+        tags: true,
+        author: {
+          select: {
+            id: true,
+            username: true,
+          },
+        },
+      },
+    });
+  }
+
+  async updatePost(postId: string, dto: UpdatePostDto, userId: string) {
+    const post = await this.prisma.post.findUnique({ where: { id: postId } });
+
+    if (!post || post.authorId !== userId) {
+      throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
+    }
+
+    if (dto.type && !Object.values(PostType).includes(dto.type)) {
+      throw new Error('Invalid post type');
+    }
+
+    const { tagNames, ...rest } = dto;
+    const data: any = { ...rest };
+
+    if (tagNames) {
+      data.tags = {
+        set: [],
+        connectOrCreate: this.makeTags(tagNames),
+      };
+    }
+
+    return this.prisma.post.update({
+      where: { id: postId },
+      data,
+      include: { tags: true },
+    });
+  }
+
+  async deletePost(postId: string, userId: string) {
+    const post = await this.prisma.post.findUnique({ where: { id: postId } });
+
+    if (!post || post.authorId !== userId) {
+      throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
+    }
+
+    await this.prisma.post.delete({ where: { id: postId } });
   }
 }

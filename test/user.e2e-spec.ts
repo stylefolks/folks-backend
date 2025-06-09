@@ -4,7 +4,7 @@ import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from './../src/app.module';
 
-describe('UserController (e2e)', () => {
+describe('UserController (e2e) 테스트', () => {
   let app: INestApplication;
 
   beforeAll(async () => {
@@ -20,7 +20,7 @@ describe('UserController (e2e)', () => {
     await app.close();
   });
 
-  it('POST /user/signup', async () => {
+  it('POST /user/signup - 회원가입', async () => {
     const response = await request(app.getHttpServer())
       .post('/user/signup')
       .send({
@@ -34,7 +34,7 @@ describe('UserController (e2e)', () => {
     expect(response.body.email).toBe('testuser2@example.com');
   });
 
-  it('POST /user/login', async () => {
+  it('POST /user/login - 로그인', async () => {
     const response = await request(app.getHttpServer())
       .post('/user/login')
       .send({
