@@ -64,3 +64,22 @@
 - folks/front-end에서 진행 예정
   - PageTransition 시스템 연동 (프론트단)
   - 반응형 대응 및 Tailwind 기반 디자인 시스템
+## 🚧 남은 작업 (v2 Plan)
+
+- [ ] CREW 생성/수정/삭제 API 확장
+- [ ] CREW 전용 게시글/리뷰 등록 기능
+- [ ] CREW NOTICE 노출 및 외부 링크 지원
+- [ ] 오프라인 이벤트 스키마(Event) 추가
+- [ ] 이벤트 등록/조회 API 구현
+- [ ] 프로필에 CREW 활동 이력 노출
+- [ ] BRAND 게시물 상단 고정(BM 기능)
+- [ ] CREW 페이지 스폰서 영역 관리
+- [ ] Premium COLUMN 표시 구조 반영
+- [ ] Vitest 기반 단위 테스트 작성
+- [ ] Playwright E2E 테스트 작성
+- [ ] UX 개선 및 디자인 피드백 반영
+
+## 🔄 최근 업데이트
+
+- Event 모델과 후원 필드 등 v2 기능을 반영하여 Prisma 스키마를 수정했습니다.
+
