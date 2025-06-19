@@ -54,4 +54,46 @@ describe('CrewController (e2e)', () => {
     expect(res.status).toBe(200);
     expect(res.body.id).toBe(crewId);
   });
+
+  it('/crew/:id (PATCH)', async () => {
+    const login = await request(app.getHttpServer())
+      .post('/user/login')
+      .send({ email: 'crewtest@example.com', password: '1234' });
+    const token = login.body.accessToken;
+
+    const create = await request(app.getHttpServer())
+      .post('/crew')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ name: 'third crew' });
+
+    const crewId = create.body.id;
+
+    const res = await request(app.getHttpServer())
+      .patch(`/crew/${crewId}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ description: 'updated' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.description).toBe('updated');
+  });
+
+  it('/crew/:id (DELETE)', async () => {
+    const login = await request(app.getHttpServer())
+      .post('/user/login')
+      .send({ email: 'crewtest@example.com', password: '1234' });
+    const token = login.body.accessToken;
+
+    const create = await request(app.getHttpServer())
+      .post('/crew')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ name: 'delete crew' });
+
+    const crewId = create.body.id;
+
+    const res = await request(app.getHttpServer())
+      .delete(`/crew/${crewId}`)
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(res.status).toBe(200);
+  });
 });
