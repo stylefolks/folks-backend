@@ -2,11 +2,14 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { CrewService } from './crew.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateCrewDto } from './dto/create-crew.dto';
+import { HttpException } from '@nestjs/common';
 
 const mockPrismaService = {
   crew: {
     create: jest.fn(),
     findUnique: jest.fn(),
+    update: jest.fn(),
+    delete: jest.fn(),
   },
 };
 
@@ -60,5 +63,39 @@ describe('CrewService', () => {
       },
     });
     expect(result).toEqual({ id: '1' });
+  });
+
+  it('updates crew when owner', async () => {
+    mockPrismaService.crew.findUnique.mockResolvedValue({ id: '1', ownerId: 'o1' });
+    mockPrismaService.crew.update.mockResolvedValue({ id: '1', name: 'new' });
+
+    const result = await service.update('1', { name: 'new' }, 'o1');
+
+    expect(mockPrismaService.crew.update).toHaveBeenCalledWith({
+      where: { id: '1' },
+      data: { name: 'new' },
+    });
+    expect(result.name).toBe('new');
+  });
+
+  it('throws when non-owner updates crew', async () => {
+    mockPrismaService.crew.findUnique.mockResolvedValue({ id: '1', ownerId: 'o1' });
+
+    await expect(service.update('1', { name: 'x' }, 'o2')).rejects.toBeInstanceOf(HttpException);
+  });
+
+  it('deletes crew when owner', async () => {
+    mockPrismaService.crew.findUnique.mockResolvedValue({ id: '1', ownerId: 'o1' });
+    mockPrismaService.crew.delete.mockResolvedValue({});
+
+    await service.delete('1', 'o1');
+
+    expect(mockPrismaService.crew.delete).toHaveBeenCalledWith({ where: { id: '1' } });
+  });
+
+  it('throws when deleting non-existent crew', async () => {
+    mockPrismaService.crew.findUnique.mockResolvedValue(null);
+
+    await expect(service.delete('1', 'o1')).rejects.toBeInstanceOf(HttpException);
   });
 });
