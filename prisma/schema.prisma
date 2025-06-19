@@ -27,6 +27,7 @@ model User {
   followers       Follow[]        @relation("FollowingUser")
   following       Follow[]        @relation("FollowerUser")
   Comment         Comment[]
+  eventAttendances EventAttendee[]
 }
 
 model Post {
@@ -48,6 +49,8 @@ model Post {
   tags      Tag[]      @relation("PostTags")
   comments  Comment[]
   PostLike  PostLike[]
+  pinnedUntil DateTime?
+  isPremium  Boolean   @default(false)
 
   @@index([type, createdAt])
 }
@@ -66,6 +69,8 @@ model Crew {
   description String?
   coverImage  String?
   links       Json?
+  sponsorImage String?
+  sponsorUrl   String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -73,8 +78,34 @@ model Crew {
   ownerId String
   posts   Post[]
   members CrewMember[]
+  events  Event[]
 
   @@unique([name])
+}
+
+model Event {
+  id        String   @id @default(uuid())
+  crew      Crew     @relation(fields: [crewId], references: [id], onDelete: Cascade)
+  crewId    String
+  title     String
+  date      DateTime
+  location  String?
+  link      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  attendees EventAttendee[]
+
+  @@index([crewId, date])
+}
+
+model EventAttendee {
+  event    Event   @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventId  String
+  user     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId   String
+  joinedAt DateTime @default(now())
+
+  @@id([eventId, userId])
 }
 
 model CrewMember {
