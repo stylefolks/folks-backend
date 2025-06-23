@@ -8,6 +8,8 @@ import { ConfigModule } from '@nestjs/config';
 import { PostModule } from './post/post.module';
 import { CrewModule } from './crew/crew.module';
 import { CommentModule } from './comment/comment.module';
+import { EventModule } from './event/event.module';
+import { CrewMemberModule } from './crew-member/crew-member.module';
 
 @Module({
   imports: [
@@ -17,6 +19,8 @@ import { CommentModule } from './comment/comment.module';
     UserModule,
     PostModule,
     CrewModule,
+    EventModule,
+    CrewMemberModule,
     CommentModule,
   ],
   controllers: [AppController],

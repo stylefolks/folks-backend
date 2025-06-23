@@ -14,10 +14,16 @@ import { RequestWithUser } from 'src/common/types/request-with-user';
 import { CreateCrewDto } from './dto/create-crew.dto';
 import { CrewService } from './crew.service';
 import { UpdateCrewDto } from './dto/update-crew.dto';
+import { PostService } from 'src/post/post.service';
+import { CreatePostDto } from 'src/post/dto/create-post.dto';
+import { PostType } from 'src/prisma/post-type';
 
 @Controller('crew')
 export class CrewController {
-  constructor(private readonly crewService: CrewService) {}
+  constructor(
+    private readonly crewService: CrewService,
+    private readonly postService: PostService,
+  ) {}
 
   @UseGuards(JwtAuthGuard)
   @Post()
@@ -28,6 +34,24 @@ export class CrewController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.crewService.findOne(id);
+  }
+
+  @Get(':id/posts')
+  getCrewPosts(@Param('id') id: string) {
+    return this.postService.getPosts({ crewId: id });
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post(':id/posts')
+  createCrewPost(
+    @Param('id') id: string,
+    @Body() dto: CreatePostDto,
+    @Req() req: RequestWithUser,
+  ) {
+    return this.postService.createPost(
+      { ...dto, crewId: id, type: PostType.CREW },
+      req.user.id,
+    );
   }
 
   @UseGuards(JwtAuthGuard)
