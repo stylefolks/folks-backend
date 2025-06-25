@@ -77,10 +77,27 @@ model Crew {
   owner   User         @relation("CrewOwner", fields: [ownerId], references: [id], onDelete: Cascade)
   ownerId String
   posts   Post[]
+  roles   CrewRole[]
   members CrewMember[]
   events  Event[]
 
   @@unique([name])
+}
+
+model CrewRole {
+  id     Int      @id @default(autoincrement())
+  name   String
+  crew   Crew     @relation(fields: [crewId], references: [id])
+  crewId String
+  permissions CrewPermission[]
+  members     CrewMember[]
+}
+
+model CrewPermission {
+  id     Int     @id @default(autoincrement())
+  action String
+  role   CrewRole @relation(fields: [roleId], references: [id])
+  roleId Int
 }
 
 model Event {
@@ -113,6 +130,8 @@ model CrewMember {
   crewId   String
   user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId   String
+  role     CrewRole @relation(fields: [roleId], references: [id])
+  roleId   Int
   joinedAt DateTime @default(now())
 
   @@id([crewId, userId])
