@@ -5,9 +5,9 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export class CrewMemberService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async join(crewId: string, userId: string) {
+  async join(crewId: string, userId: string, roleId: number) {
     return this.prisma.crewMember.create({
-      data: { crewId, userId },
+      data: { crewId, userId, roleId },
     });
   }
 
