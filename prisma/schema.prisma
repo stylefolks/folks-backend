@@ -108,6 +108,19 @@ model EventAttendee {
   @@id([eventId, userId])
 }
 
+model CrewTab {
+  id        String      @id @default(uuid())
+  crew      Crew        @relation(fields: [crewId], references: [id], onDelete: Cascade)
+  crewId    String
+  title     String
+  type      CrewTabType
+  isVisible Boolean     @default(true)
+  order     Int
+  hashtag   String?
+
+  @@index([crewId, order])
+}
+
 model CrewMember {
   crew     Crew     @relation(fields: [crewId], references: [id], onDelete: Cascade)
   crewId   String
@@ -176,4 +189,12 @@ enum PostType {
   CREW
   BRAND
   NOTICE
+}
+
+enum CrewTabType {
+  OVERVIEW
+  POSTS
+  NOTICE
+  EVENT
+  TOPIC
 }
