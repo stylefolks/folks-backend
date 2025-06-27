@@ -10,6 +10,7 @@ import { CrewModule } from './crew/crew.module';
 import { CommentModule } from './comment/comment.module';
 import { EventModule } from './event/event.module';
 import { CrewMemberModule } from './crew-member/crew-member.module';
+import { CrewTabModule } from './crew-tab/crew-tab.module';
 import { CrewPermissionModule } from './crew-permission/crew-permission.module';
 
 @Module({
@@ -24,6 +25,7 @@ import { CrewPermissionModule } from './crew-permission/crew-permission.module';
     CrewPermissionModule,
     CrewMemberModule,
     CommentModule,
+    CrewTabModule,
   ],
   controllers: [AppController],
   providers: [AppService],
