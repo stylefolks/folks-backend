@@ -1,4 +1,12 @@
-import { Controller, Param, Post, UseGuards, Req, Get, Body } from '@nestjs/common';
+import {
+  Controller,
+  Param,
+  Post,
+  UseGuards,
+  Req,
+  Get,
+  Body,
+} from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { RequestWithUser } from 'src/common/types/request-with-user';
 import { CrewMemberService } from './crew-member.service';
@@ -15,6 +23,12 @@ export class CrewMemberController {
     @Body('roleId') roleId: number,
   ) {
     return this.service.join(crewId, req.user.id, roleId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post(':crewId/leave')
+  leave(@Param('crewId') crewId: string, @Req() req: RequestWithUser) {
+    return this.service.leave(crewId, req.user.id);
   }
 
   @UseGuards(JwtAuthGuard)

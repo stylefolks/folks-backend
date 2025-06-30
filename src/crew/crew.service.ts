@@ -2,6 +2,8 @@ import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateCrewDto } from './dto/create-crew.dto';
 import { UpdateCrewDto } from './dto/update-crew.dto';
+import { CrewStatus } from 'src/prisma/crew-status';
+import { CrewMemberRole } from 'src/prisma/crew-member-role';
 import { UserRole } from 'src/prisma/user-role';
 
 @Injectable()
@@ -67,5 +69,76 @@ export class CrewService {
     }
 
     await this.prisma.crew.delete({ where: { id } });
+  }
+
+  async updateStatus(id: string, status: CrewStatus, userId: string) {
+    const crew = await this.prisma.crew.findUnique({ where: { id } });
+    if (!crew || crew.ownerId !== userId) {
+      throw new HttpException('Crew not found', HttpStatus.NOT_FOUND);
+    }
+
+    return this.prisma.crew.update({ where: { id }, data: { status } });
+  }
+
+  async transferOwnership(id: string, newOwnerId: string, userId: string) {
+    const crew = await this.prisma.crew.findUnique({ where: { id } });
+    if (!crew || crew.ownerId !== userId) {
+      throw new HttpException('Crew not found', HttpStatus.NOT_FOUND);
+    }
+
+    const membership = await this.prisma.crewMember.findUnique({
+      where: { crewId_userId: { crewId: id, userId: newOwnerId } },
+    });
+
+    if (!membership) {
+      throw new HttpException(
+        'New owner must be a crew member',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    await this.prisma.crewMember
+      .update({
+        where: { crewId_userId: { crewId: id, userId } },
+        data: { role: CrewMemberRole.MANAGER },
+      })
+      .catch(() => {});
+
+    await this.prisma.crewMember.update({
+      where: { crewId_userId: { crewId: id, userId: newOwnerId } },
+      data: { role: CrewMemberRole.OWNER },
+    });
+
+    return this.prisma.crew.update({
+      where: { id },
+      data: { ownerId: newOwnerId },
+    });
+  }
+
+  async handleOwnerLeave(crewId: string, userId: string) {
+    const crew = await this.prisma.crew.findUnique({ where: { id: crewId } });
+    if (!crew || crew.ownerId !== userId) return;
+
+    const nextMember = await this.prisma.crewMember.findFirst({
+      where: { crewId },
+      orderBy: { joinedAt: 'asc' },
+    });
+
+    if (!nextMember) {
+      await this.prisma.crew.delete({ where: { id: crewId } });
+      return;
+    }
+
+    await this.prisma.crew.update({
+      where: { id: crewId },
+      data: { ownerId: nextMember.userId },
+    });
+
+    await this.prisma.crewMember.update({
+      where: {
+        crewId_userId: { crewId, userId: nextMember.userId },
+      },
+      data: { role: CrewMemberRole.OWNER },
+    });
   }
 }
