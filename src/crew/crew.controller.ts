@@ -17,6 +17,7 @@ import { UpdateCrewDto } from './dto/update-crew.dto';
 import { PostService } from 'src/post/post.service';
 import { CreatePostDto } from 'src/post/dto/create-post.dto';
 import { PostType } from 'src/prisma/post-type';
+import { CrewStatus } from 'src/prisma/crew-status';
 
 @Controller('crew')
 export class CrewController {
@@ -62,6 +63,26 @@ export class CrewController {
     @Req() req: RequestWithUser,
   ) {
     return this.crewService.update(id, dto, req.user.id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch(':id/status')
+  updateStatus(
+    @Param('id') id: string,
+    @Body('status') status: CrewStatus,
+    @Req() req: RequestWithUser,
+  ) {
+    return this.crewService.updateStatus(id, status, req.user.id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch(':id/transfer-ownership')
+  transferOwnership(
+    @Param('id') id: string,
+    @Body('userId') newOwnerId: string,
+    @Req() req: RequestWithUser,
+  ) {
+    return this.crewService.transferOwnership(id, newOwnerId, req.user.id);
   }
 
   @UseGuards(JwtAuthGuard)
