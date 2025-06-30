@@ -1,0 +1,6 @@
+export enum PostVisibility {
+  PUBLIC = 'PUBLIC',
+  CREW_ONLY = 'CREW_ONLY',
+  FOLLOWER_ONLY = 'FOLLOWER_ONLY',
+  REPORTED = 'REPORTED',
+}

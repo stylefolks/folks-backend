@@ -38,12 +38,14 @@ enum CrewStatus {
 enum PostType {
   TALK
   COLUMN
+  CREW
 }
 
 enum PostVisibility {
   PUBLIC
   CREW_ONLY
   FOLLOWER_ONLY
+  REPORTED
 }
 
 enum SponsorshipType {
@@ -69,6 +71,12 @@ enum ReportStatus {
   PENDING
   REVIEWED
   ACTIONED
+}
+
+enum ReportReason {
+  SPAM
+  INAPPROPRIATE
+  OTHER
 }
 
 model User {
@@ -151,6 +159,7 @@ model Post {
   reactions   PostReaction[]
   viewLogs    PostViewLog[]
   comments    Comment[]
+  isFlagged   Boolean        @default(false)
   reports     ContentReport[]
 }
 
@@ -280,8 +289,10 @@ model ContentReport {
   reporterId  String
   targetType  ReportTargetType
   targetId    String
-  reason      String
+  reason      ReportReason
   status      ReportStatus      @default(PENDING)
   createdAt   DateTime          @default(now())
+
+  @@unique([targetId, reporterId])
 }
 

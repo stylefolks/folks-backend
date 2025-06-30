@@ -1,13 +1,12 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
+import { Test, TestingModule } from '@nestjs/testing';
 import * as request from 'supertest';
 import { AppModule } from './../src/app.module';
 
-describe('EventController (e2e)', () => {
+describe('SponsorshipController (e2e)', () => {
   let app: INestApplication;
-  let token: string;
   let crewId: string;
+  let token: string;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -19,13 +18,17 @@ describe('EventController (e2e)', () => {
 
     const signup = await request(app.getHttpServer())
       .post('/auth/signup')
-      .send({ email: 'event@test.com', username: 'eventer', password: '1234' });
+      .send({
+        email: 'sponsor@test.com',
+        username: 'sponsor',
+        password: '1234',
+      });
     token = signup.body.accessToken;
 
     const crew = await request(app.getHttpServer())
       .post('/crew')
       .set('Authorization', `Bearer ${token}`)
-      .send({ name: 'event crew' });
+      .send({ name: 'sponsor crew' });
     crewId = crew.body.id;
   });
 
@@ -33,20 +36,13 @@ describe('EventController (e2e)', () => {
     await app.close();
   });
 
-  it('/crew/:crewId/events (POST)', async () => {
+  it('/sponsorships/validate (POST)', async () => {
     const res = await request(app.getHttpServer())
-      .post(`/crew/${crewId}/events`)
+      .post('/sponsorships/validate')
       .set('Authorization', `Bearer ${token}`)
-      .send({ title: 'party', date: new Date().toISOString() });
-    expect(res.status).toBe(201);
-    expect(res.body).toHaveProperty('id');
-  });
+      .send({ crewId, amount: 3000 });
 
-  it('/crew/:crewId/events (GET)', async () => {
-    const res = await request(app.getHttpServer()).get(
-      `/crew/${crewId}/events`,
-    );
-    expect(res.status).toBe(200);
-    expect(Array.isArray(res.body)).toBe(true);
+    expect(res.status).toBe(201);
+    expect(res.body.valid).toBe(true);
   });
 });

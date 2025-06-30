@@ -12,6 +12,8 @@ import { EventModule } from './event/event.module';
 import { CrewMemberModule } from './crew-member/crew-member.module';
 import { CrewTabModule } from './crew-tab/crew-tab.module';
 import { CrewPermissionModule } from './crew-permission/crew-permission.module';
+import { ReportModule } from './report/report.module';
+import { SponsorshipModule } from './sponsorship/sponsorship.module';
 
 @Module({
   imports: [
@@ -26,6 +28,8 @@ import { CrewPermissionModule } from './crew-permission/crew-permission.module';
     CrewMemberModule,
     CommentModule,
     CrewTabModule,
+    SponsorshipModule,
+    ReportModule,
   ],
   controllers: [AppController],
   providers: [AppService],
