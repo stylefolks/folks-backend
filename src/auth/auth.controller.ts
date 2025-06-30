@@ -5,6 +5,8 @@ import { RequestWithUser } from 'src/common/types/request-with-user';
 import { MeResponseDto } from './dto/me-response.dto';
 import { SignupDto } from './dto/signup.dto';
 import { LoginDto } from './dto/login.dto';
+import { RequestEmailVerificationDto } from './dto/request-email-verification.dto';
+import { VerifyEmailDto } from './dto/verify-email.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -27,5 +29,16 @@ export class AuthController {
   async login(@Body() loginDto: LoginDto) {
     const { email, password } = loginDto;
     return await this.authService.login(email, password);
+  }
+
+  @Post('request-email-verification')
+  requestVerification(@Body() dto: RequestEmailVerificationDto) {
+    return this.authService.requestEmailVerification(dto.email);
+  }
+
+  @Post('verify-email')
+  verifyEmail(@Body() dto: VerifyEmailDto) {
+    const { email, code } = dto;
+    return this.authService.verifyEmail(email, code);
   }
 }
