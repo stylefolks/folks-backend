@@ -20,8 +20,8 @@ describe('UserController (e2e) 테스트', () => {
     await app.close();
   });
 
-  it('POST /auth/signup - 회원가입', async () => {
-    const response = await request(app.getHttpServer())
+  it('signup and verify email', async () => {
+    const signup = await request(app.getHttpServer())
       .post('/auth/signup')
       .send({
         email: 'testuser2@example.com',
@@ -29,21 +29,22 @@ describe('UserController (e2e) 테스트', () => {
         password: '1234',
       });
 
-    expect(response.status).toBe(201); // default는 201 Created
-    expect(response.body).toHaveProperty('id');
-    expect(response.body.email).toBe('testuser2@example.com');
-  });
+    expect(signup.status).toBe(201);
 
-  it('POST /auth/login - 로그인', async () => {
-    const response = await request(app.getHttpServer())
+    const codeRes = await request(app.getHttpServer())
+      .post('/auth/request-email-verification')
+      .send({ email: 'testuser2@example.com' });
+    const code = codeRes.body.code as string;
+
+    const verify = await request(app.getHttpServer())
+      .post('/auth/verify-email')
+      .send({ email: 'testuser2@example.com', code });
+    expect(verify.status).toBe(201);
+
+    const login = await request(app.getHttpServer())
       .post('/auth/login')
-      .send({
-        email: 'testuser2@example.com',
-        password: '1234',
-      });
-
-    expect(response.status).toBe(201); // 또는 200
-    expect(response.body).toHaveProperty('id');
-    expect(response.body.email).toBe('testuser2@example.com');
+      .send({ email: 'testuser2@example.com', password: '1234' });
+    expect(login.status).toBe(201);
+    expect(login.body).toHaveProperty('accessToken');
   });
 });

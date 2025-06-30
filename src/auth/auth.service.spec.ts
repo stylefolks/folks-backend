@@ -33,6 +33,7 @@ describe('AuthService', () => {
       id: '1',
       email: 'a',
       passwordHash: 'hashed',
+      status: 'ACTIVE',
     });
     jest.spyOn(require('bcryptjs'), 'compare').mockResolvedValue(true as any);
     mockJwt.sign.mockReturnValue('token');
