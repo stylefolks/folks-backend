@@ -4,12 +4,29 @@ import { CreateCrewDto } from './dto/create-crew.dto';
 import { UpdateCrewDto } from './dto/update-crew.dto';
 import { CrewStatus } from 'src/prisma/crew-status';
 import { CrewMemberRole } from 'src/prisma/crew-member-role';
+import { UserRole } from 'src/prisma/user-role';
 
 @Injectable()
 export class CrewService {
   constructor(private readonly prisma: PrismaService) {}
 
-  create(dto: CreateCrewDto, ownerId: string) {
+  async create(dto: CreateCrewDto, ownerId: string) {
+    const user = await this.prisma.user.findUnique({ where: { id: ownerId } });
+    if (!user || user.role !== UserRole.INFLUENCER) {
+      throw new HttpException(
+        'Only influencers can create crew',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    const existing = await this.prisma.crew.findFirst({ where: { ownerId } });
+    if (existing) {
+      throw new HttpException(
+        'User already has a crew',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
     const { name, description, coverImage, links } = dto;
     return this.prisma.crew.create({
       data: {
