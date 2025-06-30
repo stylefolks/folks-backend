@@ -8,8 +8,12 @@ const mockPrismaService = {
   crew: {
     create: jest.fn(),
     findUnique: jest.fn(),
+    findFirst: jest.fn(),
     update: jest.fn(),
     delete: jest.fn(),
+  },
+  user: {
+    findUnique: jest.fn(),
   },
 };
 
@@ -33,6 +37,11 @@ describe('CrewService', () => {
 
   it('create calls prisma with correct data', async () => {
     const dto: CreateCrewDto = { name: 'crew', description: 'desc' };
+    mockPrismaService.user.findUnique.mockResolvedValue({
+      id: 'owner1',
+      role: 'INFLUENCER',
+    });
+    mockPrismaService.crew.findFirst.mockResolvedValue(null);
     mockPrismaService.crew.create.mockResolvedValue({ id: '1', ...dto });
 
     const result = await service.create(dto, 'owner1');
@@ -82,6 +91,21 @@ describe('CrewService', () => {
     mockPrismaService.crew.findUnique.mockResolvedValue({ id: '1', ownerId: 'o1' });
 
     await expect(service.update('1', { name: 'x' }, 'o2')).rejects.toBeInstanceOf(HttpException);
+  });
+
+  it('throws when creator role is not influencer', async () => {
+    const dto: CreateCrewDto = { name: 'crew' } as any;
+    mockPrismaService.user.findUnique.mockResolvedValue({ id: 'u1', role: 'USER' });
+
+    await expect(service.create(dto, 'u1')).rejects.toBeInstanceOf(HttpException);
+  });
+
+  it('throws when user already has a crew', async () => {
+    const dto: CreateCrewDto = { name: 'crew' } as any;
+    mockPrismaService.user.findUnique.mockResolvedValue({ id: 'u1', role: 'INFLUENCER' });
+    mockPrismaService.crew.findFirst.mockResolvedValue({ id: 'c1' });
+
+    await expect(service.create(dto, 'u1')).rejects.toBeInstanceOf(HttpException);
   });
 
   it('deletes crew when owner', async () => {
