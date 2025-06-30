@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Patch,
+  Post,
   Delete,
   Body,
   Req,
@@ -10,10 +11,12 @@ import {
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdateUserStatusDto } from './dto/update-user-status.dto';
+import { ApproveBrandRoleDto } from './dto/approve-brand-role.dto';
 import { UserService } from './user.service';
 import { RequestWithUser } from 'src/common/types/request-with-user';
 
-@Controller('user')
+@Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
@@ -34,6 +37,27 @@ export class UserController {
     @Body() updateDto: UpdateUserDto,
   ) {
     return await this.userService.updateUser(req.user.id, updateDto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch('me/status')
+  updateMyStatus(
+    @Req() req: RequestWithUser,
+    @Body() dto: UpdateUserStatusDto,
+  ) {
+    return this.userService.updateStatus(req.user.id, dto.status);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('request-brand-role')
+  requestBrandRole(@Req() req: RequestWithUser) {
+    return this.userService.requestBrandRole(req.user.id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('approve-brand-role')
+  approveBrandRole(@Body() dto: ApproveBrandRoleDto) {
+    return this.userService.approveBrandRole(dto.userId);
   }
 
   @UseGuards(JwtAuthGuard)
