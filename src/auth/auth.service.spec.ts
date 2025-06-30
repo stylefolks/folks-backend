@@ -32,7 +32,7 @@ describe('AuthService', () => {
     mockPrisma.user.findFirst.mockResolvedValue({
       id: '1',
       email: 'a',
-      password: 'hashed',
+      passwordHash: 'hashed',
     });
     jest.spyOn(require('bcryptjs'), 'compare').mockResolvedValue(true as any);
     mockJwt.sign.mockReturnValue('token');

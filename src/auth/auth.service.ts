@@ -20,7 +20,7 @@ export class AuthService {
     }
 
     //TLDR; 입력받은 비밀번호"와 "저장된 해시 비밀번호" 비교검증
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+    const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
     if (!isPasswordValid) {
       throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED);
     }
@@ -40,7 +40,7 @@ export class AuthService {
       data: {
         email,
         username,
-        password: hashedPassword,
+        passwordHash: hashedPassword,
       },
     });
   }
