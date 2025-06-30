@@ -279,8 +279,17 @@ model CrewTabConfig {
   type        CrewTabType
   order       Int
   hashtag     String?
+  topic       Topic?      @relation(fields: [topicId], references: [id])
+  topicId     String?
   isVisible   Boolean     @default(true)
   createdAt   DateTime    @default(now())
+}
+
+model Topic {
+  id        String         @id @default(uuid())
+  hashtag   String         @unique
+  crewTabs  CrewTabConfig[]
+  createdAt DateTime       @default(now())
 }
 
 model ContentReport {
