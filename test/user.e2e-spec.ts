@@ -20,9 +20,9 @@ describe('UserController (e2e) 테스트', () => {
     await app.close();
   });
 
-  it('POST /user/signup - 회원가입', async () => {
+  it('POST /auth/signup - 회원가입', async () => {
     const response = await request(app.getHttpServer())
-      .post('/user/signup')
+      .post('/auth/signup')
       .send({
         email: 'testuser2@example.com',
         username: 'testuser',
@@ -34,9 +34,9 @@ describe('UserController (e2e) 테스트', () => {
     expect(response.body.email).toBe('testuser2@example.com');
   });
 
-  it('POST /user/login - 로그인', async () => {
+  it('POST /auth/login - 로그인', async () => {
     const response = await request(app.getHttpServer())
-      .post('/user/login')
+      .post('/auth/login')
       .send({
         email: 'testuser2@example.com',
         password: '1234',

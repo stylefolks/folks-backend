@@ -21,9 +21,11 @@ describe('CrewController (e2e)', () => {
   });
 
   it('/crew (POST)', async () => {
-    const login = await request(app.getHttpServer())
-      .post('/user/signup')
-      .send({ email: 'crewtest@example.com', username: 'crewuser', password: '1234' });
+    const login = await request(app.getHttpServer()).post('/auth/signup').send({
+      email: 'crewtest@example.com',
+      username: 'crewuser',
+      password: '1234',
+    });
 
     const token = login.body.accessToken;
 
@@ -38,7 +40,7 @@ describe('CrewController (e2e)', () => {
 
   it('/crew/:id (GET)', async () => {
     const login = await request(app.getHttpServer())
-      .post('/user/login')
+      .post('/auth/login')
       .send({ email: 'crewtest@example.com', password: '1234' });
     const token = login.body.accessToken;
 
@@ -57,7 +59,7 @@ describe('CrewController (e2e)', () => {
 
   it('/crew/:id (PATCH)', async () => {
     const login = await request(app.getHttpServer())
-      .post('/user/login')
+      .post('/auth/login')
       .send({ email: 'crewtest@example.com', password: '1234' });
     const token = login.body.accessToken;
 
@@ -79,7 +81,7 @@ describe('CrewController (e2e)', () => {
 
   it('/crew/:id (DELETE)', async () => {
     const login = await request(app.getHttpServer())
-      .post('/user/login')
+      .post('/auth/login')
       .send({ email: 'crewtest@example.com', password: '1234' });
     const token = login.body.accessToken;
 
