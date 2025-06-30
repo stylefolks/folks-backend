@@ -4,12 +4,26 @@ import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { PostType } from 'src/prisma/post-type';
+import { PostVisibility } from 'src/prisma/post-visibility';
 import { GetPostsDto } from './dto/get-posts.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
+import { UserRole } from 'src/prisma/user-role';
+import { CrewMemberRole } from 'src/prisma/crew-member-role';
 
 @Injectable()
 export class PostService {
   constructor(private readonly prisma: PrismaService) {}
+
+  extractMentions(content: Record<string, any>): string[] {
+    const text = JSON.stringify(content);
+    const regex = /@([A-Za-z0-9_-]+)/g;
+    const mentions = new Set<string>();
+    let match: RegExpExecArray | null;
+    while ((match = regex.exec(text))) {
+      mentions.add(match[1]);
+    }
+    return Array.from(mentions);
+  }
 
   makeTags(tagNames?: string[]) {
     return (
@@ -31,6 +45,35 @@ export class PostService {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const type = dto.type;
 
+    if (type === PostType.COLUMN) {
+      if (!crewId) {
+        throw new HttpException('crewId required for columns', HttpStatus.BAD_REQUEST);
+      }
+
+      const user = await this.prisma.user.findUnique({ where: { id: userId } });
+      if (!user) {
+        throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+      }
+
+      if (user.role !== UserRole.BRAND) {
+        const crew = await this.prisma.crew.findUnique({ where: { id: crewId } });
+        if (!crew) {
+          throw new HttpException('Crew not found', HttpStatus.NOT_FOUND);
+        }
+
+        if (crew.ownerId !== userId) {
+          const member = await this.prisma.crewMember.findUnique({
+            where: { crewId_userId: { crewId, userId } },
+          });
+
+          if (!member ||
+            (member.role !== CrewMemberRole.OWNER && member.role !== CrewMemberRole.MANAGER)) {
+            throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+          }
+        }
+      }
+    }
+
     return this.prisma.post.create({
       data: {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -51,7 +94,7 @@ export class PostService {
   }
 
   async getPosts(dto: GetPostsDto) {
-    const { take = '10', cursor, tags, crewId } = dto;
+    const { take = '10', cursor, tags, crewId, mention } = dto;
     const postType = dto.postType;
     const takeNum = parseInt(take, 10);
 
@@ -100,12 +143,21 @@ export class PostService {
       },
     });
 
-    const totalCount = await this.prisma.post.count({ where });
-    const hasNextPage = posts.length > takeNum;
-    const nextCursor = hasNextPage ? posts[takeNum].id : null;
+    let filtered = posts;
+    if (mention) {
+      filtered = posts.filter((p) =>
+        this.extractMentions(p.content).includes(mention),
+      );
+    }
+
+    const totalCount = mention
+      ? filtered.length
+      : await this.prisma.post.count({ where });
+    const hasNextPage = filtered.length > takeNum;
+    const nextCursor = hasNextPage ? filtered[takeNum].id : null;
 
     return {
-      posts: posts.slice(0, takeNum),
+      posts: filtered.slice(0, takeNum),
       pageInfo: {
         totalCount,
         hasNextPage,
@@ -155,6 +207,36 @@ export class PostService {
       data,
       include: { tags: true },
     });
+  }
+
+  async updatePostVisibility(
+    postId: string,
+    visibility: PostVisibility,
+    userId: string,
+  ) {
+    const post = await this.prisma.post.findUnique({ where: { id: postId } });
+
+    if (!post || post.authorId !== userId) {
+      throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
+    }
+
+    return this.prisma.post.update({
+      where: { id: postId },
+      data: { visibility },
+    });
+  }
+
+  async parseMentions(postId: string) {
+    const post = await this.prisma.post.findUnique({
+      where: { id: postId },
+      select: { content: true },
+    });
+
+    if (!post) {
+      throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
+    }
+
+    return { mentions: this.extractMentions(post.content) };
   }
 
   async deletePost(postId: string, userId: string) {

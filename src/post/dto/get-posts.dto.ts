@@ -30,4 +30,8 @@ export class GetPostsDto {
   @IsOptional()
   @IsString()
   crewId?: string;
+
+  @IsOptional()
+  @IsString()
+  mention?: string;
 }

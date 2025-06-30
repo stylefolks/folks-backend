@@ -14,6 +14,7 @@ import {
 import { PostService } from './post.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
+import { UpdatePostVisibilityDto } from './dto/update-post-visibility.dto';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { RequestWithUser } from 'src/common/types/request-with-user';
 import { GetPostsDto } from './dto/get-posts.dto';
@@ -46,6 +47,21 @@ export class PostController {
     @Req() req: RequestWithUser,
   ) {
     return this.postService.updatePost(id, dto, req.user.id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch(':id/visibility')
+  async updateVisibility(
+    @Param('id') id: string,
+    @Body() dto: UpdatePostVisibilityDto,
+    @Req() req: RequestWithUser,
+  ) {
+    return this.postService.updatePostVisibility(id, dto.visibility, req.user.id);
+  }
+
+  @Post(':id/parse-mentions')
+  async parseMentions(@Param('id') id: string) {
+    return this.postService.parseMentions(id);
   }
 
   @UseGuards(JwtAuthGuard)
