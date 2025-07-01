@@ -18,5 +18,6 @@ import { AuthService } from 'src/auth/auth.service';
     JwtStrategy,
     JwtAuthGuard,
   ],
+  exports: [PostService],
 })
 export class PostModule {}

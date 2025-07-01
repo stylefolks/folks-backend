@@ -6,6 +6,7 @@ import { UserRole } from 'src/prisma/user-role';
 
 const mockPrismaService = {
   user: {
+    findUnique: jest.fn(),
     update: jest.fn(),
   },
 };
@@ -26,6 +27,25 @@ describe('UserService', () => {
 
   afterEach(() => {
     jest.clearAllMocks();
+  });
+
+  it('getUserById retrieves user with selected fields', async () => {
+    mockPrismaService.user.findUnique.mockResolvedValue({ id: '1', username: 'u' });
+
+    const result = await service.getUserById('1');
+
+    expect(mockPrismaService.user.findUnique).toHaveBeenCalledWith({
+      where: { id: '1' },
+      select: {
+        id: true,
+        username: true,
+        avatarUrl: true,
+        bio: true,
+        role: true,
+        status: true,
+      },
+    });
+    expect(result?.id).toBe('1');
   });
 
   it('updateUser calls prisma update with dto', async () => {
