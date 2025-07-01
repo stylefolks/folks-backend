@@ -14,6 +14,7 @@ import { CrewTabModule } from './crew-tab/crew-tab.module';
 import { CrewPermissionModule } from './crew-permission/crew-permission.module';
 import { ReportModule } from './report/report.module';
 import { SponsorshipModule } from './sponsorship/sponsorship.module';
+import { NotificationTemplateModule } from './notification-template/notification-template.module';
 import { AdCampaignModule } from './ad-campaign/ad-campaign.module';
 import { TopicModule } from './topic/topic.module';
 
@@ -32,6 +33,7 @@ import { TopicModule } from './topic/topic.module';
     CrewTabModule,
     SponsorshipModule,
     ReportModule,
+    NotificationTemplateModule,
     AdCampaignModule,
     TopicModule,
   ],
