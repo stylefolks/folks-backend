@@ -7,7 +7,7 @@ export class EventService {
   constructor(private readonly prisma: PrismaService) {}
 
   create(crewId: string, dto: CreateEventDto) {
-    return (this.prisma as any).event.create({
+    return this.prisma.event.create({
       data: {
         crewId,
         title: dto.title,
@@ -19,13 +19,13 @@ export class EventService {
   }
 
   findCrewEvents(crewId: string) {
-    return (this.prisma as any).event.findMany({
+    return this.prisma.event.findMany({
       where: { crewId },
       orderBy: { date: 'asc' },
     });
   }
 
   findOne(id: string) {
-    return (this.prisma as any).event.findUnique({ where: { id } });
+    return this.prisma.event.findUnique({ where: { id } });
   }
 }

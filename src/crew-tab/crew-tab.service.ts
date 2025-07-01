@@ -8,7 +8,7 @@ export class CrewTabService {
   constructor(private readonly prisma: PrismaService) {}
 
   create(crewId: string, dto: CreateCrewTabDto) {
-    return (this.prisma as any).crewTab.create({
+    return this.prisma.crewTab.create({
       data: {
         crewId,
         title: dto.title,
@@ -21,20 +21,20 @@ export class CrewTabService {
   }
 
   findCrewTabs(crewId: string) {
-    return (this.prisma as any).crewTab.findMany({
+    return this.prisma.crewTab.findMany({
       where: { crewId },
       orderBy: { order: 'asc' },
     });
   }
 
   update(id: string, dto: UpdateCrewTabDto) {
-    return (this.prisma as any).crewTab.update({
+    return this.prisma.crewTab.update({
       where: { id },
       data: dto,
     });
   }
 
   remove(id: string) {
-    return (this.prisma as any).crewTab.delete({ where: { id } });
+    return this.prisma.crewTab.delete({ where: { id } });
   }
 }
