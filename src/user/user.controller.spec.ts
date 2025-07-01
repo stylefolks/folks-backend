@@ -5,6 +5,7 @@ import { UserStatus } from 'src/prisma/user-status';
 import { UserRole } from 'src/prisma/user-role';
 
 const mockUserService = {
+  getUserById: jest.fn(),
   updateUser: jest.fn(),
   updateStatus: jest.fn(),
   requestBrandRole: jest.fn(),
@@ -26,6 +27,15 @@ describe('UserController', () => {
 
   afterEach(() => {
     jest.clearAllMocks();
+  });
+
+  it('getUser calls service with id', async () => {
+    mockUserService.getUserById.mockResolvedValue({ id: '1' });
+
+    const result = await userController.getUser('1');
+
+    expect(mockUserService.getUserById).toHaveBeenCalledWith('1');
+    expect(result).toEqual({ id: '1' });
   });
 
   it('updateMe calls service with user id', async () => {

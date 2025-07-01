@@ -6,6 +6,7 @@ import {
   Delete,
   Body,
   Req,
+  Param,
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
@@ -19,6 +20,11 @@ import { RequestWithUser } from 'src/common/types/request-with-user';
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
+
+  @Get(':id')
+  getUser(@Param('id') id: string) {
+    return this.userService.getUserById(id);
+  }
 
   @UseGuards(JwtAuthGuard)
   @Get('me')

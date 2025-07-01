@@ -84,3 +84,72 @@
 - Event 모델과 후원 필드 등 v2 기능을 반영하여 Prisma 스키마를 수정했습니다.
 - CREW 멤버십 API와 전용 게시글, 이벤트 관리 기능을 추가했습니다.
 
+
+## REST API Checklist
+
+### 🔐 인증 & 회원가입
+- [x] `POST /auth/signup`
+- [x] `POST /auth/verify-email`
+- [x] `POST /auth/request-email-verification`
+
+### 👤 유저
+- [x] `GET /users/:id`
+- [x] `GET /users/:id/followers`
+- [x] `GET /users/:id/following`
+- [x] `POST /users/:id/follow`
+- [x] `DELETE /users/:id/unfollow`
+- [x] `PATCH /users/me/status`
+- [x] `POST /users/request-brand-role`
+- [x] `POST /users/approve-brand-role`
+
+### 🧑‍🤝‍🧑 크루
+- [x] `POST /crews`
+- [x] `GET /crews/:id`
+- [x] `POST /crews/:id/join`
+- [x] `POST /crews/:id/leave`
+- [x] `PATCH /crews/:id/status`
+- [x] `PATCH /crews/:id/transfer-ownership`
+
+### 👥 크루 멤버
+- [ ] `GET /crews/:crewId/members`
+- [ ] `PATCH /crews/:crewId/members/:userId/role`
+- [ ] `DELETE /crews/:crewId/members/:userId`
+
+### 🧷 크루탭/토픽
+- [x] `POST /crews/:crewId/tabs`
+- [x] `PATCH /crews/:crewId/tabs/:tabId`
+- [x] `DELETE /crews/:crewId/tabs/:tabId`
+- [x] `POST /topics`
+
+### 📝 게시글
+- [x] `POST /posts`
+- [x] `PATCH /posts/:id`
+- [x] `DELETE /posts/:id`
+- [x] `PATCH /posts/:id/visibility`
+- [x] `GET /posts?mention=crewId`
+- [x] `GET /posts?type=`
+- [x] `POST /posts/:id/parse-mentions`
+
+### 💰 후원
+- [x] `POST /sponsorships`
+- [x] `POST /sponsorships/webhook`
+- [x] `POST /sponsorships/validate`
+
+### 📢 광고
+- [x] `POST /ad-campaigns`
+- [x] `PATCH /ad-campaigns/:id/status`
+
+### ⚠️ 신고
+- [x] `POST /reports`
+- [x] `GET /reports?status=pending`
+- [x] `PATCH /reports/:id/resolve`
+
+### 🔔 알림 템플릿
+- [x] `GET /notification-templates`
+- [x] `POST /notification-templates`
+
+### ⚙️ 설정 정보
+- [ ] `GET /config/post-types`
+- [ ] `GET /config/user-roles`
+- [ ] `GET /config/crew-status`
+- [ ] `GET /config/post-visibility`

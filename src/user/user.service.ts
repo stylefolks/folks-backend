@@ -8,6 +8,20 @@ import { UserRole } from 'src/prisma/user-role';
 export class UserService {
   constructor(private readonly prisma: PrismaService) {}
 
+  getUserById(userId: string) {
+    return this.prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        username: true,
+        avatarUrl: true,
+        bio: true,
+        role: true,
+        status: true,
+      },
+    });
+  }
+
   async updateUser(userId: string, updateUserDto: UpdateUserDto) {
     return this.prisma.user.update({
       where: { id: userId },
