@@ -78,6 +78,8 @@
 - [ ] Vitest 기반 단위 테스트 작성
 - [ ] Playwright E2E 테스트 작성
 - [ ] UX 개선 및 디자인 피드백 반영
+- [ ] COLUMN 작성 권한 제한 (일반 유저 작성 시 에러 처리)
+- [ ] OWNER 승계 실패 시 CREW 상태 비공개 전환
 
 ## 🔄 최근 업데이트
 
@@ -149,7 +151,7 @@
 - [x] `POST /notification-templates`
 
 ### ⚙️ 설정 정보
-- [ ] `GET /config/post-types`
-- [ ] `GET /config/user-roles`
-- [ ] `GET /config/crew-status`
-- [ ] `GET /config/post-visibility`
+- [x] `GET /config/post-types`
+- [x] `GET /config/user-roles`
+- [x] `GET /config/crew-status`
+- [x] `GET /config/post-visibility`

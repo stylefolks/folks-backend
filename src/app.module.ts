@@ -17,6 +17,7 @@ import { SponsorshipModule } from './sponsorship/sponsorship.module';
 import { NotificationTemplateModule } from './notification-template/notification-template.module';
 import { AdCampaignModule } from './ad-campaign/ad-campaign.module';
 import { TopicModule } from './topic/topic.module';
+import { ConfigInfoModule } from './config-info/config.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { TopicModule } from './topic/topic.module';
     NotificationTemplateModule,
     AdCampaignModule,
     TopicModule,
+    ConfigInfoModule,
   ],
   controllers: [AppController],
   providers: [AppService],
