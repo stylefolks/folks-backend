@@ -12,6 +12,9 @@ const mockPrismaService = {
     update: jest.fn(),
     delete: jest.fn(),
   },
+  crewMember: {
+    findFirst: jest.fn(),
+  },
   user: {
     findUnique: jest.fn(),
   },
@@ -121,5 +124,18 @@ describe('CrewService', () => {
     mockPrismaService.crew.findUnique.mockResolvedValue(null);
 
     await expect(service.delete('1', 'o1')).rejects.toBeInstanceOf(HttpException);
+  });
+
+  it('owner leave sets crew hidden when no members', async () => {
+    mockPrismaService.crew.findUnique.mockResolvedValue({ id: 'c1', ownerId: 'o1' });
+    mockPrismaService.crewMember.findFirst.mockResolvedValue(null);
+    mockPrismaService.crew.update.mockResolvedValue({});
+
+    await service.handleOwnerLeave('c1', 'o1');
+
+    expect(mockPrismaService.crew.update).toHaveBeenCalledWith({
+      where: { id: 'c1' },
+      data: { status: 'HIDDEN' },
+    });
   });
 });
