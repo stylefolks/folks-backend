@@ -45,4 +45,32 @@ describe('SponsorshipController (e2e)', () => {
     expect(res.status).toBe(201);
     expect(res.body.valid).toBe(true);
   });
+
+  it('/sponsorships (POST)', async () => {
+    const res = await request(app.getHttpServer())
+      .post('/sponsorships')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ crewId, amount: 3000 });
+
+    expect(res.status).toBe(201);
+    expect(res.body.url).toBeDefined();
+  });
+
+  it('/sponsorships/webhook (POST)', async () => {
+    const payload = {
+      type: 'checkout.session.completed',
+      data: {
+        object: {
+          metadata: { crewId, sponsorId: 'dummy' },
+          amount_total: 3000,
+        },
+      },
+    };
+    const res = await request(app.getHttpServer())
+      .post('/sponsorships/webhook')
+      .send(payload);
+
+    expect(res.status).toBe(201);
+    expect(res.body.received).toBe(true);
+  });
 });
