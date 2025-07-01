@@ -49,6 +49,7 @@ export class AuthService {
         username,
         passwordHash: hashedPassword,
         status: UserStatus.INACTIVE,
+        role: 'USER',
       },
     });
   }

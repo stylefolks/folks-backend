@@ -10,8 +10,8 @@ export class CreateCrewDto {
 
   @IsOptional()
   @IsString()
-  coverImage?: string;
+  avatarUrl?: string;
 
   @IsOptional()
-  links?: Record<string, any>;
+  externalLinks?: Record<string, any>;
 }

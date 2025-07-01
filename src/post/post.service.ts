@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { Prisma } from '@prisma/client';
 import { CreatePostDto } from './dto/create-post.dto';
 import { PostType } from 'src/prisma/post-type';
 import { PostVisibility } from 'src/prisma/post-visibility';
@@ -14,7 +15,8 @@ import { CrewMemberRole } from 'src/prisma/crew-member-role';
 export class PostService {
   constructor(private readonly prisma: PrismaService) {}
 
-  extractMentions(content: Record<string, any>): string[] {
+  extractMentions(content: Prisma.JsonValue | null): string[] {
+    if (!content || typeof content !== 'object') return [];
     const text = JSON.stringify(content);
     const regex = /@([A-Za-z0-9_-]+)/g;
     const mentions = new Set<string>();
@@ -28,8 +30,12 @@ export class PostService {
   makeTags(tagNames?: string[]) {
     return (
       tagNames?.map((name) => ({
-        where: { name },
-        create: { name },
+        tag: {
+          connectOrCreate: {
+            where: { name },
+            create: { name },
+          },
+        },
       })) || []
     );
   }
@@ -84,7 +90,7 @@ export class PostService {
         authorId: userId,
         ...(crewId && { crewId }),
         tags: {
-          connectOrCreate: this.makeTags(tagNames),
+          create: this.makeTags(tagNames),
         },
       },
       include: {
@@ -198,7 +204,7 @@ export class PostService {
     if (tagNames) {
       data.tags = {
         set: [],
-        connectOrCreate: this.makeTags(tagNames),
+        create: this.makeTags(tagNames),
       };
     }
 

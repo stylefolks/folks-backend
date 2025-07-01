@@ -9,9 +9,9 @@ export class CrewMemberService {
     private readonly crewService: CrewService,
   ) {}
 
-  async join(crewId: string, userId: string, roleId: number) {
+  async join(crewId: string, userId: string) {
     return this.prisma.crewMember.create({
-      data: { crewId, userId, roleId },
+      data: { crewId, userId, role: 'MEMBER' },
     });
   }
 

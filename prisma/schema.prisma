@@ -53,6 +53,12 @@ enum SponsorshipType {
   ONETIME
 }
 
+enum AdCampaignStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 enum CrewTabType {
   OVERVIEW
   POSTS
@@ -128,7 +134,8 @@ model Crew {
   status        CrewStatus      @default(ACTIVE)
   sponsorships  Sponsorship[]
   adCampaigns   AdCampaign[]
-  crewTabs      CrewTabConfig[]
+  crewTabs      CrewTab[]
+  events        Event[]
   externalLinks Json?
   slug          String?         @unique
   createdAt     DateTime        @default(now())
@@ -255,6 +262,7 @@ model AdCampaign {
   budget    Int
   startsAt  DateTime
   endsAt    DateTime
+  status    AdCampaignStatus @default(PENDING)
 }
 
 model PostReaction {
@@ -276,10 +284,22 @@ model PostViewLog {
   viewedAt DateTime @default(now())
 }
 
-model CrewTabConfig {
+model Event {
+  id        String   @id @default(uuid())
+  crew      Crew     @relation(fields: [crewId], references: [id])
+  crewId    String
+  title     String
+  date      DateTime
+  location  String?
+  link      String?
+  createdAt DateTime @default(now())
+}
+
+model CrewTab {
   id        String      @id @default(uuid())
   crew      Crew        @relation(fields: [crewId], references: [id])
   crewId    String
+  title     String
   type      CrewTabType
   order     Int
   hashtag   String?
@@ -290,10 +310,10 @@ model CrewTabConfig {
 }
 
 model Topic {
-  id        String          @id @default(uuid())
-  hashtag   String          @unique
-  crewTabs  CrewTabConfig[]
-  createdAt DateTime        @default(now())
+  id        String      @id @default(uuid())
+  hashtag   String      @unique
+  crewTabs  CrewTab[]
+  createdAt DateTime    @default(now())
 }
 
 model ContentReport {

@@ -11,16 +11,8 @@ export class UpdateCrewDto {
 
   @IsOptional()
   @IsString()
-  coverImage?: string;
+  avatarUrl?: string;
 
   @IsOptional()
-  links?: Record<string, any>;
-
-  @IsOptional()
-  @IsString()
-  sponsorImage?: string;
-
-  @IsOptional()
-  @IsString()
-  sponsorUrl?: string;
+  externalLinks?: Record<string, any>;
 }

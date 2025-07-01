@@ -1,6 +1,5 @@
 export enum AdCampaignStatus {
   PENDING = 'PENDING',
-  RUNNING = 'RUNNING',
-  COMPLETED = 'COMPLETED',
-  CANCELLED = 'CANCELLED',
+  APPROVED = 'APPROVED',
+  REJECTED = 'REJECTED',
 }

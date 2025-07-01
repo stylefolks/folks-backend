@@ -15,7 +15,7 @@ export class AdCampaignService {
     }
 
     const { crewId, content, bannerUrl, budget, startsAt, endsAt } = dto;
-    return this.prisma.adCampaign.create({
+    return (this.prisma as any).adCampaign.create({
       data: {
         brandId,
         crewId,
@@ -30,22 +30,21 @@ export class AdCampaignService {
   }
 
   async updateStatus(id: string, status: AdCampaignStatus) {
-    const campaign = await this.prisma.adCampaign.findUnique({ where: { id } });
+    const campaign = await (this.prisma as any).adCampaign.findUnique({ where: { id } });
     if (!campaign) throw new NotFoundException('Campaign not found');
 
     if (!this.isValidTransition(campaign.status as AdCampaignStatus, status)) {
       throw new BadRequestException('Invalid status transition');
     }
 
-    return this.prisma.adCampaign.update({ where: { id }, data: { status } });
+    return (this.prisma as any).adCampaign.update({ where: { id }, data: { status } });
   }
 
   isValidTransition(current: AdCampaignStatus, next: AdCampaignStatus) {
     const map: Record<AdCampaignStatus, AdCampaignStatus[]> = {
-      [AdCampaignStatus.PENDING]: [AdCampaignStatus.RUNNING, AdCampaignStatus.CANCELLED],
-      [AdCampaignStatus.RUNNING]: [AdCampaignStatus.COMPLETED, AdCampaignStatus.CANCELLED],
-      [AdCampaignStatus.COMPLETED]: [],
-      [AdCampaignStatus.CANCELLED]: [],
+      [AdCampaignStatus.PENDING]: [AdCampaignStatus.APPROVED, AdCampaignStatus.REJECTED],
+      [AdCampaignStatus.APPROVED]: [],
+      [AdCampaignStatus.REJECTED]: [],
     };
     return map[current]?.includes(next);
   }
