@@ -15,6 +15,7 @@ import { CrewPermissionModule } from './crew-permission/crew-permission.module';
 import { ReportModule } from './report/report.module';
 import { SponsorshipModule } from './sponsorship/sponsorship.module';
 import { AdCampaignModule } from './ad-campaign/ad-campaign.module';
+import { TopicModule } from './topic/topic.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { AdCampaignModule } from './ad-campaign/ad-campaign.module';
     SponsorshipModule,
     ReportModule,
     AdCampaignModule,
+    TopicModule,
   ],
   controllers: [AppController],
   providers: [AppService],
