@@ -80,87 +80,92 @@ enum ReportReason {
 }
 
 model User {
-  id            String       @id @default(uuid())
-  username      String
-  email         String       @unique
-  passwordHash  String
-  avatarUrl     String?
-  bio           String?
-  role          UserRole
-  status        UserStatus   @default(ACTIVE)
-  followers     Follow[]     @relation("Following")
-  following     Follow[]     @relation("Follower")
-  posts         Post[]
-  crewMemberships CrewMember[]
-  sponsorships  Sponsorship[] @relation("UserSponsorships")
-  adCampaigns   AdCampaign[] @relation("UserAdCampaigns")
-  reactions     PostReaction[]
-  viewLogs      PostViewLog[]
-  imageAssets   ImageAsset[]
-  notifications Notification[]
-  reports       ContentReport[]
-  createdAt     DateTime     @default(now())
+  id              String          @id @default(uuid())
+  username        String
+  email           String          @unique
+  passwordHash    String
+  avatarUrl       String?
+  bio             String?
+  role            UserRole
+  status          UserStatus      @default(ACTIVE)
+  followers       Follow[]        @relation("Following")
+  following       Follow[]        @relation("Follower")
+  posts           Post[] // 작성한 게시글
+  crewMemberships CrewMember[] // 속한 크루 멤버십
+  sponsorships    Sponsorship[]   @relation("UserSponsorships")
+  adCampaigns     AdCampaign[]    @relation("UserAdCampaigns")
+  reactions       PostReaction[]
+  viewLogs        PostViewLog[]
+  imageAssets     ImageAsset[]
+  notifications   Notification[]
+  reports         ContentReport[] @relation("ReportedByUser")
+  ownedCrews      Crew[]          @relation("CrewOwner") // ★ 추가: 본인이 owner인 크루들
+  draftPosts      DraftPost[] // ★ 추가: 임시저장글
+  comments        Comment[] // ★ 추가: 댓글
+  receivedReports ContentReport[] @relation("ReportTargetUser") // ★ 추가: 자기 자신이 타겟이 된 리포트(아래 설명)
+  createdAt       DateTime        @default(now())
 }
 
 model Follow {
-  follower   User   @relation("Follower", fields: [followerId], references: [id])
-  followerId String
-  following  User   @relation("Following", fields: [followingId], references: [id])
+  follower    User     @relation("Follower", fields: [followerId], references: [id])
+  followerId  String
+  following   User     @relation("Following", fields: [followingId], references: [id])
   followingId String
-  createdAt  DateTime @default(now())
+  createdAt   DateTime @default(now())
 
   @@id([followerId, followingId])
 }
 
 model Crew {
-  id           String         @id @default(uuid())
-  name         String
-  description  String?
-  avatarUrl    String?
-  owner        User           @relation(fields: [ownerId], references: [id])
-  ownerId      String
-  members      CrewMember[]
-  posts        Post[]
-  status       CrewStatus     @default(ACTIVE)
-  sponsorships Sponsorship[]
-  adCampaigns  AdCampaign[]
-  crewTabs     CrewTabConfig[]
+  id            String          @id @default(uuid())
+  name          String
+  description   String?
+  avatarUrl     String?
+  owner         User            @relation("CrewOwner", fields: [ownerId], references: [id]) // ★ relation 명시
+  ownerId       String
+  members       CrewMember[]
+  posts         Post[]
+  status        CrewStatus      @default(ACTIVE)
+  sponsorships  Sponsorship[]
+  adCampaigns   AdCampaign[]
+  crewTabs      CrewTabConfig[]
   externalLinks Json?
-  slug         String?        @unique
-  createdAt    DateTime       @default(now())
+  slug          String?         @unique
+  createdAt     DateTime        @default(now())
 }
 
 model CrewMember {
-  user     User   @relation(fields: [userId], references: [id])
+  user     User           @relation(fields: [userId], references: [id])
   userId   String
-  crew     Crew   @relation(fields: [crewId], references: [id])
+  crew     Crew           @relation(fields: [crewId], references: [id])
   crewId   String
   role     CrewMemberRole
-  joinedAt DateTime @default(now())
+  joinedAt DateTime       @default(now())
 
   @@id([crewId, userId])
 }
 
 model Post {
-  id          String         @id @default(uuid())
-  author      User           @relation(fields: [authorId], references: [id])
+  id          String          @id @default(uuid())
+  author      User            @relation(fields: [authorId], references: [id])
   authorId    String
-  crew        Crew?          @relation(fields: [crewId], references: [id])
+  crew        Crew?           @relation(fields: [crewId], references: [id])
   crewId      String?
   type        PostType
-  visibility  PostVisibility @default(PUBLIC)
+  visibility  PostVisibility  @default(PUBLIC)
   title       String
   content     Json
-  isDraft     Boolean        @default(false)
+  isDraft     Boolean         @default(false)
   publishedAt DateTime?
-  slug        String?        @unique
-  createdAt   DateTime       @default(now())
+  slug        String?         @unique
+  createdAt   DateTime        @default(now())
   tags        PostTag[]
   reactions   PostReaction[]
   viewLogs    PostViewLog[]
   comments    Comment[]
-  isFlagged   Boolean        @default(false)
-  reports     ContentReport[]
+  isFlagged   Boolean         @default(false)
+  reports     ContentReport[] @relation("ReportTargetPost") // ★ 추가: 이 글이 타겟이 된 리포트
+  imageAssets ImageAsset[] // ★ 추가: 이 글의 첨부 이미지들
 }
 
 model PostTag {
@@ -173,9 +178,9 @@ model PostTag {
 }
 
 model Tag {
-  id        String     @id @default(uuid())
-  name      String     @unique
-  createdAt DateTime   @default(now())
+  id        String    @id @default(uuid())
+  name      String    @unique
+  createdAt DateTime  @default(now())
   postTags  PostTag[]
 }
 
@@ -189,16 +194,17 @@ model DraftPost {
 }
 
 model Comment {
-  id              String    @id @default(uuid())
-  post            Post      @relation(fields: [postId], references: [id])
+  id              String          @id @default(uuid())
+  post            Post            @relation(fields: [postId], references: [id])
   postId          String
-  author          User      @relation(fields: [authorId], references: [id])
+  author          User            @relation(fields: [authorId], references: [id])
   authorId        String
   parentCommentId String?
   content         String
-  isEdited        Boolean   @default(false)
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  isEdited        Boolean         @default(false)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  reports         ContentReport[] @relation("ReportTargetComment") // ★ 추가: 이 댓글이 타겟이 된 리포트
 }
 
 model Notification {
@@ -219,25 +225,23 @@ model NotificationTemplate {
 }
 
 model ImageAsset {
-  id        String   @id @default(uuid())
-  user      User     @relation(fields: [userId], references: [id])
-  userId    String
-  post      Post?    @relation(fields: [postId], references: [id])
-  postId    String?
-  url       String
-  uploadedAt DateTime @default(now())
+  id     String  @id @default(uuid())
+  user   User    @relation(fields: [userId], references: [id])
+  userId String
+  post   Post?   @relation(fields: [postId], references: [id])
+  postId String?
 }
 
 model Sponsorship {
-  id         String           @id @default(uuid())
-  sponsor    User             @relation("UserSponsorships", fields: [sponsorId], references: [id])
-  sponsorId  String
-  crew       Crew             @relation(fields: [crewId], references: [id])
-  crewId     String
-  amount     Int
-  type       SponsorshipType
-  startedAt  DateTime
-  endedAt    DateTime?
+  id        String          @id @default(uuid())
+  sponsor   User            @relation("UserSponsorships", fields: [sponsorId], references: [id])
+  sponsorId String
+  crew      Crew            @relation(fields: [crewId], references: [id])
+  crewId    String
+  amount    Int
+  type      SponsorshipType
+  startedAt DateTime
+  endedAt   DateTime?
 }
 
 model AdCampaign {
@@ -264,44 +268,50 @@ model PostReaction {
 }
 
 model PostViewLog {
-  id        String   @id @default(uuid())
-  post      Post     @relation(fields: [postId], references: [id])
-  postId    String
-  user      User     @relation(fields: [userId], references: [id])
-  userId    String
-  viewedAt  DateTime @default(now())
+  id       String   @id @default(uuid())
+  post     Post     @relation(fields: [postId], references: [id])
+  postId   String
+  user     User     @relation(fields: [userId], references: [id])
+  userId   String
+  viewedAt DateTime @default(now())
 }
 
 model CrewTabConfig {
-  id          String      @id @default(uuid())
-  crew        Crew        @relation(fields: [crewId], references: [id])
-  crewId      String
-  type        CrewTabType
-  order       Int
-  hashtag     String?
-  topic       Topic?      @relation(fields: [topicId], references: [id])
-  topicId     String?
-  isVisible   Boolean     @default(true)
-  createdAt   DateTime    @default(now())
+  id        String      @id @default(uuid())
+  crew      Crew        @relation(fields: [crewId], references: [id])
+  crewId    String
+  type      CrewTabType
+  order     Int
+  hashtag   String?
+  topic     Topic?      @relation(fields: [topicId], references: [id])
+  topicId   String?
+  isVisible Boolean     @default(true)
+  createdAt DateTime    @default(now())
 }
 
 model Topic {
-  id        String         @id @default(uuid())
-  hashtag   String         @unique
+  id        String          @id @default(uuid())
+  hashtag   String          @unique
   crewTabs  CrewTabConfig[]
-  createdAt DateTime       @default(now())
+  createdAt DateTime        @default(now())
 }
 
 model ContentReport {
-  id          String            @id @default(uuid())
-  reporter    User              @relation(fields: [reporterId], references: [id])
-  reporterId  String
-  targetType  ReportTargetType
-  targetId    String
-  reason      ReportReason
-  status      ReportStatus      @default(PENDING)
-  createdAt   DateTime          @default(now())
+  id         String           @id @default(uuid())
+  reporter   User             @relation("ReportedByUser", fields: [reporterId], references: [id])
+  reporterId String
+  // 어떤 타입이 타겟인지에 따라 relation 분기 (유연성을 위해 relation을 모두 nullable로 두기)
+  post       Post?            @relation("ReportTargetPost", fields: [postId], references: [id])
+  postId     String?
+  comment    Comment?         @relation("ReportTargetComment", fields: [commentId], references: [id])
+  commentId  String?
+  user       User?            @relation("ReportTargetUser", fields: [userId], references: [id])
+  userId     String?
+  targetType ReportTargetType
+  targetId   String
+  reason     ReportReason
+  status     ReportStatus     @default(PENDING)
+  createdAt  DateTime         @default(now())
 
   @@unique([targetId, reporterId])
 }
-
