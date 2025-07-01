@@ -125,7 +125,10 @@ export class CrewService {
     });
 
     if (!nextMember) {
-      await this.prisma.crew.delete({ where: { id: crewId } });
+      await this.prisma.crew.update({
+        where: { id: crewId },
+        data: { status: CrewStatus.HIDDEN },
+      });
       return;
     }
 

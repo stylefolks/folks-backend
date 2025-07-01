@@ -61,6 +61,10 @@ export class PostService {
         throw new HttpException('User not found', HttpStatus.NOT_FOUND);
       }
 
+      if (user.role === UserRole.USER) {
+        throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+      }
+
       if (user.role !== UserRole.BRAND) {
         const crew = await this.prisma.crew.findUnique({ where: { id: crewId } });
         if (!crew) {

@@ -117,4 +117,26 @@ describe('PostService 서비스', () => {
       HttpException,
     );
   });
+
+  it('일반 유저는 COLUMN 게시글 작성 불가', async () => {
+    const dto: any = {
+      type: PostType.COLUMN,
+      title: 't',
+      content: {},
+      crewId: 'c1',
+    };
+
+    mockPrismaService.user.findUnique.mockResolvedValue({
+      id: 'u1',
+      role: 'USER',
+    });
+    mockPrismaService.crew.findUnique.mockResolvedValue({
+      id: 'c1',
+      ownerId: 'u1',
+    });
+
+    await expect(service.createPost(dto, 'u1')).rejects.toBeInstanceOf(
+      HttpException,
+    );
+  });
 });
