@@ -20,9 +20,8 @@ export class CrewMemberController {
   join(
     @Param('crewId') crewId: string,
     @Req() req: RequestWithUser,
-    @Body('roleId') roleId: number,
   ) {
-    return this.service.join(crewId, req.user.id, roleId);
+    return this.service.join(crewId, req.user.id);
   }
 
   @UseGuards(JwtAuthGuard)

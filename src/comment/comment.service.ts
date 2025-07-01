@@ -14,19 +14,16 @@ export class CommentService {
         content,
         authorId: userId,
         postId,
-        ...(parentId && { parentId }),
+        ...(parentId && { parentCommentId: parentId }),
       },
     });
   }
 
   getCommentsByPost(postId: string) {
     return this.prisma.comment.findMany({
-      where: { postId, parentId: null },
+      where: { postId, parentCommentId: null },
       orderBy: { createdAt: 'asc' },
       include: {
-        replies: {
-          orderBy: { createdAt: 'asc' },
-        },
         author: { select: { id: true, username: true } },
       },
     });

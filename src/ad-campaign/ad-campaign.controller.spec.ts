@@ -32,10 +32,10 @@ describe('AdCampaignController', () => {
   });
 
   it('calls service on status update', async () => {
-    mockService.updateStatus.mockResolvedValue({ id: 'c1', status: AdCampaignStatus.RUNNING });
-    const dto: any = { status: AdCampaignStatus.RUNNING };
+    mockService.updateStatus.mockResolvedValue({ id: 'c1', status: AdCampaignStatus.APPROVED });
+    const dto: any = { status: AdCampaignStatus.APPROVED };
     const result = await controller.updateStatus('c1', dto);
-    expect(mockService.updateStatus).toHaveBeenCalledWith('c1', AdCampaignStatus.RUNNING);
-    expect(result.status).toBe(AdCampaignStatus.RUNNING);
+    expect(mockService.updateStatus).toHaveBeenCalledWith('c1', AdCampaignStatus.APPROVED);
+    expect(result.status).toBe(AdCampaignStatus.APPROVED);
   });
 });

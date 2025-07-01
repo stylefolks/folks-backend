@@ -10,19 +10,7 @@ export class CrewPermissionService {
     userId: string,
     action: string,
   ): Promise<boolean> {
-    const permission = await this.prisma.crewPermission.findFirst({
-      where: {
-        action,
-        role: {
-          members: {
-            some: {
-              crewId,
-              userId,
-            },
-          },
-        },
-      },
-    });
-    return !!permission;
+    // Permission system not implemented yet
+    return false;
   }
 }

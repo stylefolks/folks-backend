@@ -52,10 +52,10 @@ describe('AdCampaignService', () => {
 
   it('validates status transitions', async () => {
     mockPrisma.adCampaign.findUnique.mockResolvedValue({ id: 'c1', status: AdCampaignStatus.PENDING });
-    mockPrisma.adCampaign.update.mockResolvedValue({ id: 'c1', status: AdCampaignStatus.RUNNING });
+    mockPrisma.adCampaign.update.mockResolvedValue({ id: 'c1', status: AdCampaignStatus.APPROVED });
 
-    const result = await service.updateStatus('c1', AdCampaignStatus.RUNNING);
-    expect(mockPrisma.adCampaign.update).toHaveBeenCalledWith({ where: { id: 'c1' }, data: { status: AdCampaignStatus.RUNNING } });
-    expect(result.status).toBe(AdCampaignStatus.RUNNING);
+    const result = await service.updateStatus('c1', AdCampaignStatus.APPROVED);
+    expect(mockPrisma.adCampaign.update).toHaveBeenCalledWith({ where: { id: 'c1' }, data: { status: AdCampaignStatus.APPROVED } });
+    expect(result.status).toBe(AdCampaignStatus.APPROVED);
   });
 });

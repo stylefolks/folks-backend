@@ -27,13 +27,13 @@ export class CrewService {
       );
     }
 
-    const { name, description, coverImage, links } = dto;
+    const { name, description, avatarUrl, externalLinks } = dto;
     return this.prisma.crew.create({
       data: {
         name,
         description,
-        coverImage,
-        links,
+        avatarUrl,
+        externalLinks,
         ownerId,
       },
     });
