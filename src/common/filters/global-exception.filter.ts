@@ -8,7 +8,7 @@ import {
 import { Request, Response } from 'express';
 
 @Catch()
-export class AllExceptionsFilter implements ExceptionFilter {
+export class GlobalExceptionFilter implements ExceptionFilter {
   catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
@@ -27,9 +27,8 @@ export class AllExceptionsFilter implements ExceptionFilter {
     const stack =
       exception instanceof HttpException ? null : (exception as Error).stack;
 
-    // 콘솔 로그로 찍기
     console.error({
-      timestamp: new Date().toLocaleDateString(),
+      timestamp: new Date().toISOString(),
       path: request.url,
       method: request.method,
       message,
@@ -39,7 +38,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
     response.status(status).json({
       statusCode: status,
       message,
-      timestamp: new Date().toLocaleDateString(),
+      timestamp: new Date().toISOString(),
       path: request.url,
     });
   }
