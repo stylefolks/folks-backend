@@ -7,12 +7,12 @@ export class TopicService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(dto: CreateTopicDto) {
-    const topic = await (this.prisma as any).topic.create({
+    const topic = await this.prisma.topic.create({
       data: { hashtag: dto.hashtag },
     });
 
     if (dto.tabIds?.length) {
-      await (this.prisma as any).crewTab.updateMany({
+      await this.prisma.crewTab.updateMany({
         where: { id: { in: dto.tabIds } },
         data: { topicId: topic.id, hashtag: dto.hashtag },
       });
