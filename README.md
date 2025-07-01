@@ -59,42 +59,16 @@
 - [x] 댓글/대댓글 모델 설계
 - [x] 댓글 CRUD API
 
-## 🎨 기본 UI/UX
-
-- folks/front-end에서 진행 예정
-  - PageTransition 시스템 연동 (프론트단)
-  - 반응형 대응 및 Tailwind 기반 디자인 시스템
-## 🚧 남은 작업 (v2 Plan)
-
-- [x] CREW 생성/수정/삭제 API 확장
-- [x] CREW 전용 게시글/리뷰 등록 기능
-- [ ] CREW NOTICE 노출 및 외부 링크 지원
-- [x] 오프라인 이벤트 스키마(Event) 추가
-- [x] 이벤트 등록/조회 API 구현
-- [x] 프로필에 CREW 활동 이력 노출
-- [ ] BRAND 게시물 상단 고정(BM 기능)
-- [ ] CREW 페이지 스폰서 영역 관리
-- [ ] Premium COLUMN 표시 구조 반영
-- [ ] Vitest 기반 단위 테스트 작성
-- [ ] Playwright E2E 테스트 작성
-- [ ] UX 개선 및 디자인 피드백 반영
-- [ ] COLUMN 작성 권한 제한 (일반 유저 작성 시 에러 처리)
-- [ ] OWNER 승계 실패 시 CREW 상태 비공개 전환
-
-## 🔄 최근 업데이트
-
-- Event 모델과 후원 필드 등 v2 기능을 반영하여 Prisma 스키마를 수정했습니다.
-- CREW 멤버십 API와 전용 게시글, 이벤트 관리 기능을 추가했습니다.
-
-
 ## REST API Checklist
 
 ### 🔐 인증 & 회원가입
+
 - [x] `POST /auth/signup`
 - [x] `POST /auth/verify-email`
 - [x] `POST /auth/request-email-verification`
 
 ### 👤 유저
+
 - [x] `GET /users/:id`
 - [x] `GET /users/:id/followers`
 - [x] `GET /users/:id/following`
@@ -105,6 +79,7 @@
 - [x] `POST /users/approve-brand-role`
 
 ### 🧑‍🤝‍🧑 크루
+
 - [x] `POST /crews`
 - [x] `GET /crews/:id`
 - [x] `POST /crews/:id/join`
@@ -113,17 +88,20 @@
 - [x] `PATCH /crews/:id/transfer-ownership`
 
 ### 👥 크루 멤버
+
 - [x] `GET /crews/:crewId/members`
 - [x] `PATCH /crews/:crewId/members/:userId/role`
 - [x] `DELETE /crews/:crewId/members/:userId`
 
 ### 🧷 크루탭/토픽
+
 - [x] `POST /crews/:crewId/tabs`
 - [x] `PATCH /crews/:crewId/tabs/:tabId`
 - [x] `DELETE /crews/:crewId/tabs/:tabId`
 - [x] `POST /topics`
 
 ### 📝 게시글
+
 - [x] `POST /posts`
 - [x] `PATCH /posts/:id`
 - [x] `DELETE /posts/:id`
@@ -133,25 +111,35 @@
 - [x] `POST /posts/:id/parse-mentions`
 
 ### 💰 후원
+
 - [x] `POST /sponsorships`
 - [x] `POST /sponsorships/webhook`
 - [x] `POST /sponsorships/validate`
 
 ### 📢 광고
+
 - [x] `POST /ad-campaigns`
 - [x] `PATCH /ad-campaigns/:id/status`
 
 ### ⚠️ 신고
+
 - [x] `POST /reports`
 - [x] `GET /reports?status=pending`
 - [x] `PATCH /reports/:id/resolve`
 
 ### 🔔 알림 템플릿
+
 - [x] `GET /notification-templates`
 - [x] `POST /notification-templates`
 
 ### ⚙️ 설정 정보
+
 - [x] `GET /config/post-types`
 - [x] `GET /config/user-roles`
 - [x] `GET /config/crew-status`
 - [x] `GET /config/post-visibility`
+
+### 🫡 추가작업
+
+- [ ] COLUMN 작성 권한 제한 (일반 유저 작성 시 에러 처리)
+- [ ] OWNER 승계 실패 시 CREW 상태 비공개 전환
