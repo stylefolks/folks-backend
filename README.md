@@ -111,9 +111,9 @@
 - [x] `PATCH /crews/:id/transfer-ownership`
 
 ### 👥 크루 멤버
-- [ ] `GET /crews/:crewId/members`
-- [ ] `PATCH /crews/:crewId/members/:userId/role`
-- [ ] `DELETE /crews/:crewId/members/:userId`
+- [x] `GET /crews/:crewId/members`
+- [x] `PATCH /crews/:crewId/members/:userId/role`
+- [x] `DELETE /crews/:crewId/members/:userId`
 
 ### 🧷 크루탭/토픽
 - [x] `POST /crews/:crewId/tabs`
