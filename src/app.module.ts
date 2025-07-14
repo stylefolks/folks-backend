@@ -18,6 +18,7 @@ import { NotificationTemplateModule } from './notification-template/notification
 import { AdCampaignModule } from './ad-campaign/ad-campaign.module';
 import { TopicModule } from './topic/topic.module';
 import { ConfigInfoModule } from './config-info/config.module';
+import { HashtagModule } from './hashtag/hashtag.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { ConfigInfoModule } from './config-info/config.module';
     NotificationTemplateModule,
     AdCampaignModule,
     TopicModule,
+    HashtagModule,
     ConfigInfoModule,
   ],
   controllers: [AppController],
