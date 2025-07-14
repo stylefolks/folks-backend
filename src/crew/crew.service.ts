@@ -39,6 +39,16 @@ export class CrewService {
     });
   }
 
+  list(sort?: string) {
+    if (sort === 'popular') {
+      return this.prisma.crew.findMany({
+        orderBy: { members: { _count: 'desc' } },
+        include: { _count: { select: { members: true } } },
+      });
+    }
+    return this.prisma.crew.findMany();
+  }
+
   findOne(id: string) {
     return this.prisma.crew.findUnique({
       where: { id },

@@ -155,4 +155,71 @@ describe('CrewController (e2e)', () => {
 
     expect(res.status).toBe(200);
   });
+
+  it('/crew?sort=popular (GET)', async () => {
+    const server = app.getHttpServer();
+
+    const s1 = await request(server)
+      .post('/auth/signup')
+      .send({ email: 'pop1@test.com', username: 'pop1', password: '1234' });
+    const owner1 = s1.body.id as string;
+    await prisma.user.update({
+      where: { id: owner1 },
+      data: { role: 'INFLUENCER', status: 'ACTIVE' },
+    });
+    const l1 = await request(server)
+      .post('/auth/login')
+      .send({ email: 'pop1@test.com', password: '1234' });
+    const t1 = l1.body.accessToken;
+    const c1 = await request(server)
+      .post('/crew')
+      .set('Authorization', `Bearer ${t1}`)
+      .send({ name: 'popular1' });
+    const crew1Id = c1.body.id as string;
+
+    const s2 = await request(server)
+      .post('/auth/signup')
+      .send({ email: 'pop2@test.com', username: 'pop2', password: '1234' });
+    const owner2 = s2.body.id as string;
+    await prisma.user.update({
+      where: { id: owner2 },
+      data: { role: 'INFLUENCER', status: 'ACTIVE' },
+    });
+    const l2 = await request(server)
+      .post('/auth/login')
+      .send({ email: 'pop2@test.com', password: '1234' });
+    const t2 = l2.body.accessToken;
+    await request(server)
+      .post('/crew')
+      .set('Authorization', `Bearer ${t2}`)
+      .send({ name: 'popular2' });
+
+    const m1 = await request(server)
+      .post('/auth/signup')
+      .send({ email: 'mem1@test.com', username: 'mem1', password: '1234' });
+    await prisma.user.update({ where: { id: m1.body.id }, data: { status: 'ACTIVE' } });
+    const lm1 = await request(server)
+      .post('/auth/login')
+      .send({ email: 'mem1@test.com', password: '1234' });
+    await request(server)
+      .post(`/crew/${crew1Id}/join`)
+      .set('Authorization', `Bearer ${lm1.body.accessToken}`);
+
+    const m2 = await request(server)
+      .post('/auth/signup')
+      .send({ email: 'mem2@test.com', username: 'mem2', password: '1234' });
+    await prisma.user.update({ where: { id: m2.body.id }, data: { status: 'ACTIVE' } });
+    const lm2 = await request(server)
+      .post('/auth/login')
+      .send({ email: 'mem2@test.com', password: '1234' });
+    await request(server)
+      .post(`/crew/${crew1Id}/join`)
+      .set('Authorization', `Bearer ${lm2.body.accessToken}`);
+
+    const res = await request(server).get('/crew?sort=popular');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body)).toBe(true);
+    expect(res.body[0].id).toBe(crew1Id);
+    expect(res.body[0]._count.members).toBe(2);
+  });
 });

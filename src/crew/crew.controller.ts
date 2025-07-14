@@ -8,6 +8,7 @@ import {
   UseGuards,
   Patch,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { RequestWithUser } from 'src/common/types/request-with-user';
@@ -25,6 +26,11 @@ export class CrewController {
     private readonly crewService: CrewService,
     private readonly postService: PostService,
   ) {}
+
+  @Get()
+  list(@Query('sort') sort?: string) {
+    return this.crewService.list(sort);
+  }
 
   @UseGuards(JwtAuthGuard)
   @Post()
