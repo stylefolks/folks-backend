@@ -34,4 +34,8 @@ export class GetPostsDto {
   @IsOptional()
   @IsString()
   mention?: string;
+
+  @IsOptional()
+  @IsString()
+  query?: string;
 }

@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Prisma } from '@prisma/client';
@@ -27,19 +25,6 @@ export class PostService {
     return Array.from(mentions);
   }
 
-  makeTags(tagNames?: string[]) {
-    return (
-      tagNames?.map((name) => ({
-        tag: {
-          connectOrCreate: {
-            where: { name },
-            create: { name },
-          },
-        },
-      })) || []
-    );
-  }
-
   async createPost(dto: CreatePostDto, userId: string) {
     const { title, content, isDraft, tagNames, crewId } = dto;
 
@@ -53,7 +38,10 @@ export class PostService {
 
     if (type === PostType.COLUMN) {
       if (!crewId) {
-        throw new HttpException('crewId required for columns', HttpStatus.BAD_REQUEST);
+        throw new HttpException(
+          'crewId required for columns',
+          HttpStatus.BAD_REQUEST,
+        );
       }
 
       const user = await this.prisma.user.findUnique({ where: { id: userId } });
@@ -66,7 +54,9 @@ export class PostService {
       }
 
       if (user.role !== UserRole.BRAND) {
-        const crew = await this.prisma.crew.findUnique({ where: { id: crewId } });
+        const crew = await this.prisma.crew.findUnique({
+          where: { id: crewId },
+        });
         if (!crew) {
           throw new HttpException('Crew not found', HttpStatus.NOT_FOUND);
         }
@@ -76,8 +66,11 @@ export class PostService {
             where: { crewId_userId: { crewId, userId } },
           });
 
-          if (!member ||
-            (member.role !== CrewMemberRole.OWNER && member.role !== CrewMemberRole.MANAGER)) {
+          if (
+            !member ||
+            (member.role !== CrewMemberRole.OWNER &&
+              member.role !== CrewMemberRole.MANAGER)
+          ) {
             throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
           }
         }
@@ -93,81 +86,79 @@ export class PostService {
         isDraft,
         authorId: userId,
         ...(crewId && { crewId }),
-        tags: {
-          create: this.makeTags(tagNames),
-        },
+        ...(tagNames &&
+          tagNames.length > 0 && {
+            postTags: {
+              create: tagNames.map((tagName) => ({
+                hashtags: {
+                  connectOrCreate: {
+                    where: { name: tagName },
+                    create: { name: tagName },
+                  },
+                },
+              })),
+            },
+          }),
       },
       include: {
-        tags: true,
+        hashtags: {
+          include: {
+            hashtags: true,
+          },
+        },
       },
     });
   }
 
   async getPosts(dto: GetPostsDto) {
-    const { take = '10', cursor, tags, crewId, mention } = dto;
-    const postType = dto.postType;
+    const { take = '10', cursor, tags, crewId, mention, query, postType } = dto;
     const takeNum = parseInt(take, 10);
 
-    const where: any = {
+    const where: Prisma.PostWhereInput = {
       isDraft: false,
-    };
-
-    if (postType) {
-      where.type = postType;
-    }
-
-    if (tags && tags.length > 0) {
-      where.tags = {
-        some: {
-          name: {
-            in: tags,
+      ...(postType && { type: postType }),
+      ...(tags &&
+        tags?.length > 0 && {
+          hashtags: {
+            some: {
+              hashtags: { name: { in: tags } },
+            },
+          },
+        }),
+      ...(crewId && { crewId }),
+      ...(query && {
+        title: { contains: query, mode: Prisma.QueryMode.insensitive },
+      }),
+      ...(mention && {
+        crewMentions: {
+          some: {
+            crewId: mention,
           },
         },
-      };
-    }
-
-    if (crewId) {
-      where.crewId = crewId;
-    }
+      }),
+    };
 
     const posts = await this.prisma.post.findMany({
       where,
-      orderBy: {
-        createdAt: 'desc',
-      },
-      take: takeNum + 1, // +1 to check for next page
+      orderBy: { createdAt: 'desc' },
+      take: takeNum + 1,
       ...(cursor && {
-        cursor: {
-          id: cursor,
-        },
+        cursor: { id: cursor },
         skip: 1,
       }),
       include: {
-        tags: true,
-        author: {
-          select: {
-            id: true,
-            username: true,
-          },
-        },
+        hashtags: true,
+        author: { select: { id: true, username: true } },
+        crewMentions: { include: { crew: true } }, // crewMentions를 객체로 명시
       },
     });
 
-    let filtered = posts;
-    if (mention) {
-      filtered = posts.filter((p) =>
-        this.extractMentions(p.content).includes(mention),
-      );
-    }
-
-    const totalCount = mention
-      ? filtered.length
-      : await this.prisma.post.count({ where });
-    const hasNextPage = filtered.length > takeNum;
-    const nextCursor = hasNextPage ? filtered[takeNum].id : null;
+    const totalCount = await this.prisma.post.count({ where });
+    const hasNextPage = posts.length > takeNum;
+    const nextCursor = hasNextPage ? posts[takeNum].id : null;
 
     return {
-      posts: filtered.slice(0, takeNum),
+      posts: posts.slice(0, takeNum),
       pageInfo: {
         totalCount,
         hasNextPage,
@@ -180,7 +171,7 @@ export class PostService {
     return this.prisma.post.findUnique({
       where: { id: postId },
       include: {
-        tags: true,
+        hashtags: true,
         author: {
           select: {
             id: true,
@@ -202,20 +193,13 @@ export class PostService {
       throw new Error('Invalid post type');
     }
 
-    const { tagNames, ...rest } = dto;
-    const data: any = { ...rest };
-
-    if (tagNames) {
-      data.tags = {
-        set: [],
-        create: this.makeTags(tagNames),
-      };
-    }
+    const { ...rest } = dto;
+    const data = { ...rest };
 
     return this.prisma.post.update({
       where: { id: postId },
       data,
-      include: { tags: true },
+      include: { hashtags: true },
     });
   }
 

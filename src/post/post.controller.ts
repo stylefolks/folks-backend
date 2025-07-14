@@ -56,7 +56,11 @@ export class PostController {
     @Body() dto: UpdatePostVisibilityDto,
     @Req() req: RequestWithUser,
   ) {
-    return this.postService.updatePostVisibility(id, dto.visibility, req.user.id);
+    return this.postService.updatePostVisibility(
+      id,
+      dto.visibility,
+      req.user.id,
+    );
   }
 
   @Post(':id/parse-mentions')

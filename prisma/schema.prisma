@@ -123,22 +123,23 @@ model Follow {
 }
 
 model Crew {
-  id            String          @id @default(uuid())
+  id            String        @id @default(uuid())
   name          String
   description   String?
   avatarUrl     String?
-  owner         User            @relation("CrewOwner", fields: [ownerId], references: [id]) // ★ relation 명시
+  owner         User          @relation("CrewOwner", fields: [ownerId], references: [id]) // ★ relation 명시
   ownerId       String
   members       CrewMember[]
   posts         Post[]
-  status        CrewStatus      @default(ACTIVE)
+  status        CrewStatus    @default(ACTIVE)
   sponsorships  Sponsorship[]
   adCampaigns   AdCampaign[]
   crewTabs      CrewTab[]
   events        Event[]
   externalLinks Json?
-  slug          String?         @unique
-  createdAt     DateTime        @default(now())
+  slug          String?       @unique
+  createdAt     DateTime      @default(now())
+  crewMentions  CrewMention[]
 }
 
 model CrewMember {
@@ -153,38 +154,39 @@ model CrewMember {
 }
 
 model Post {
-  id          String          @id @default(uuid())
-  author      User            @relation(fields: [authorId], references: [id])
-  authorId    String
-  crew        Crew?           @relation(fields: [crewId], references: [id])
-  crewId      String?
-  type        PostType
-  visibility  PostVisibility  @default(PUBLIC)
-  title       String
-  content     Json
-  isDraft     Boolean         @default(false)
-  publishedAt DateTime?
-  slug        String?         @unique
-  createdAt   DateTime        @default(now())
-  tags        PostTag[]
-  reactions   PostReaction[]
-  viewLogs    PostViewLog[]
-  comments    Comment[]
-  isFlagged   Boolean         @default(false)
-  reports     ContentReport[] @relation("ReportTargetPost") // ★ 추가: 이 글이 타겟이 된 리포트
-  imageAssets ImageAsset[] // ★ 추가: 이 글의 첨부 이미지들
+  id           String          @id @default(uuid())
+  author       User            @relation(fields: [authorId], references: [id])
+  authorId     String
+  crew         Crew?           @relation(fields: [crewId], references: [id])
+  crewId       String?
+  type         PostType
+  visibility   PostVisibility  @default(PUBLIC)
+  title        String
+  content      Json
+  isDraft      Boolean         @default(false)
+  publishedAt  DateTime?
+  slug         String?         @unique
+  createdAt    DateTime        @default(now())
+  hashtags     PostTag[]
+  reactions    PostReaction[]
+  viewLogs     PostViewLog[]
+  comments     Comment[]
+  isFlagged    Boolean         @default(false)
+  reports      ContentReport[] @relation("ReportTargetPost") // ★ 추가: 이 글이 타겟이 된 리포트
+  imageAssets  ImageAsset[] // ★ 추가: 이 글의 첨부 이미지들
+  crewMentions CrewMention[] // 추가
 }
 
 model PostTag {
-  post   Post   @relation(fields: [postId], references: [id])
-  postId String
-  tag    Tag    @relation(fields: [tagId], references: [id])
-  tagId  String
+  post      Post    @relation(fields: [postId], references: [id])
+  postId    String
+  hashtags  HashTag @relation(fields: [hashTagId], references: [id])
+  hashTagId String
 
-  @@id([postId, tagId])
+  @@id([postId, hashTagId])
 }
 
-model Tag {
+model HashTag {
   id        String    @id @default(uuid())
   name      String    @unique
   createdAt DateTime  @default(now())
@@ -252,10 +254,10 @@ model Sponsorship {
 }
 
 model AdCampaign {
-  id        String   @id @default(uuid())
-  brand     User     @relation("UserAdCampaigns", fields: [brandId], references: [id])
+  id        String           @id @default(uuid())
+  brand     User             @relation("UserAdCampaigns", fields: [brandId], references: [id])
   brandId   String
-  crew      Crew     @relation(fields: [crewId], references: [id])
+  crew      Crew             @relation(fields: [crewId], references: [id])
   crewId    String
   content   String
   bannerUrl String
@@ -309,11 +311,22 @@ model CrewTab {
   createdAt DateTime    @default(now())
 }
 
+model CrewMention {
+  id        String   @id @default(uuid())
+  post      Post     @relation(fields: [postId], references: [id])
+  postId    String
+  crew      Crew     @relation(fields: [crewId], references: [id])
+  crewId    String
+  createdAt DateTime @default(now())
+
+  @@unique([postId, crewId])
+}
+
 model Topic {
-  id        String      @id @default(uuid())
-  hashtag   String      @unique
+  id        String    @id @default(uuid())
+  hashtag   String    @unique
   crewTabs  CrewTab[]
-  createdAt DateTime    @default(now())
+  createdAt DateTime  @default(now())
 }
 
 model ContentReport {
