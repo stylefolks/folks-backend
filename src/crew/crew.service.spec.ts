@@ -9,6 +9,7 @@ const mockPrismaService = {
     create: jest.fn(),
     findUnique: jest.fn(),
     findFirst: jest.fn(),
+    findMany: jest.fn(),
     update: jest.fn(),
     delete: jest.fn(),
   },
@@ -136,6 +137,17 @@ describe('CrewService', () => {
     expect(mockPrismaService.crew.update).toHaveBeenCalledWith({
       where: { id: 'c1' },
       data: { status: 'HIDDEN' },
+    });
+  });
+
+  it('lists crews sorted by member count when sort=popular', async () => {
+    mockPrismaService.crew.findMany.mockResolvedValue([]);
+
+    await service.list('popular');
+
+    expect(mockPrismaService.crew.findMany).toHaveBeenCalledWith({
+      orderBy: { members: { _count: 'desc' } },
+      include: { _count: { select: { members: true } } },
     });
   });
 });
