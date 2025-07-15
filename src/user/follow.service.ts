@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 
@@ -31,15 +32,19 @@ export class FollowService {
       await this.prisma.follow.create({
         data: { followerId: userId, followingId: targetId },
       });
-    } catch (err) {
+    } catch (err: any) {
       // ignore duplicate follow
     }
     return { followerId: userId, followingId: targetId };
   }
 
   async unfollow(userId: string, targetId: string) {
-    await this.prisma.follow.delete({
-      where: { followerId_followingId: { followerId: userId, followingId: targetId } },
-    }).catch(() => {});
+    await this.prisma.follow
+      .delete({
+        where: {
+          followerId_followingId: { followerId: userId, followingId: targetId },
+        },
+      })
+      .catch(() => {});
   }
 }

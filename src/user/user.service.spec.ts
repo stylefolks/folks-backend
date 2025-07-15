@@ -30,7 +30,10 @@ describe('UserService', () => {
   });
 
   it('getUserById retrieves user with selected fields', async () => {
-    mockPrismaService.user.findUnique.mockResolvedValue({ id: '1', username: 'u' });
+    mockPrismaService.user.findUnique.mockResolvedValue({
+      id: '1',
+      username: 'u',
+    });
 
     const result = await service.getUserById('1');
 
@@ -49,7 +52,10 @@ describe('UserService', () => {
   });
 
   it('updateUser calls prisma update with dto', async () => {
-    mockPrismaService.user.update.mockResolvedValue({ id: '1', username: 'new' });
+    mockPrismaService.user.update.mockResolvedValue({
+      id: '1',
+      username: 'new',
+    });
     const dto = { username: 'new', bio: 'hi', imageUrl: 'img' };
 
     const result = await service.updateUser('1', dto as any);
@@ -62,7 +68,10 @@ describe('UserService', () => {
   });
 
   it('updateStatus updates user status', async () => {
-    mockPrismaService.user.update.mockResolvedValue({ id: '1', status: UserStatus.BANNED });
+    mockPrismaService.user.update.mockResolvedValue({
+      id: '1',
+      status: UserStatus.BANNED,
+    });
 
     const result = await service.updateStatus('1', UserStatus.BANNED);
 
@@ -74,7 +83,10 @@ describe('UserService', () => {
   });
 
   it('requestBrandRole sets status inactive', async () => {
-    mockPrismaService.user.update.mockResolvedValue({ id: '1', status: UserStatus.INACTIVE });
+    mockPrismaService.user.update.mockResolvedValue({
+      id: '1',
+      status: UserStatus.INACTIVE,
+    });
 
     const result = await service.requestBrandRole('1');
 
@@ -86,7 +98,11 @@ describe('UserService', () => {
   });
 
   it('approveBrandRole sets role brand and active', async () => {
-    mockPrismaService.user.update.mockResolvedValue({ id: '1', role: UserRole.BRAND, status: UserStatus.ACTIVE });
+    mockPrismaService.user.update.mockResolvedValue({
+      id: '1',
+      role: UserRole.BRAND,
+      status: UserStatus.ACTIVE,
+    });
 
     const result = await service.approveBrandRole('1');
 

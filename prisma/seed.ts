@@ -72,7 +72,11 @@ async function main() {
     }
     if (member2) {
       await prisma.crewMember.create({
-        data: { crewId: crew.id, userId: member2, role: CrewMemberRole.MANAGER },
+        data: {
+          crewId: crew.id,
+          userId: member2,
+          role: CrewMemberRole.MANAGER,
+        },
       });
     }
   }
@@ -80,9 +84,7 @@ async function main() {
   // Create hashtags
   const hashtagNames = Array.from({ length: 10 }).map((_, i) => `tag${i + 1}`);
   const hashtags = await Promise.all(
-    hashtagNames.map((name) =>
-      prisma.hashTag.create({ data: { name } }),
-    ),
+    hashtagNames.map((name) => prisma.hashTag.create({ data: { name } })),
   );
 
   // Helper to pick random item

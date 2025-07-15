@@ -12,7 +12,6 @@ const mockUserService = {
   approveBrandRole: jest.fn(),
 };
 
-
 describe('UserController', () => {
   let userController: UserController;
 
@@ -50,12 +49,18 @@ describe('UserController', () => {
   });
 
   it('updateMyStatus calls service with user id and status', async () => {
-    mockUserService.updateStatus.mockResolvedValue({ id: '1', status: UserStatus.BANNED });
+    mockUserService.updateStatus.mockResolvedValue({
+      id: '1',
+      status: UserStatus.BANNED,
+    });
     const req: any = { user: { id: '1' } };
     const dto: any = { status: UserStatus.BANNED };
     const result = await userController.updateMyStatus(req, dto);
 
-    expect(mockUserService.updateStatus).toHaveBeenCalledWith('1', UserStatus.BANNED);
+    expect(mockUserService.updateStatus).toHaveBeenCalledWith(
+      '1',
+      UserStatus.BANNED,
+    );
     expect(result).toEqual({ id: '1', status: UserStatus.BANNED });
   });
 
@@ -69,7 +74,10 @@ describe('UserController', () => {
   });
 
   it('approveBrandRole calls service with dto userId', async () => {
-    mockUserService.approveBrandRole.mockResolvedValue({ id: '2', role: UserRole.BRAND });
+    mockUserService.approveBrandRole.mockResolvedValue({
+      id: '2',
+      role: UserRole.BRAND,
+    });
     const dto: any = { userId: '2' };
     const result = await userController.approveBrandRole(dto);
 
