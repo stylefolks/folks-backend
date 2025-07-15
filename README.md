@@ -15,6 +15,11 @@
 | **Validation** | `class-validator` + `class-transformer`로 DTO 검증      |
 | **Auth**       | `Passport.js` + JWT (검증된 안정성 및 다량의 샘플 존재) |
 
+# 필요 버전
+
+- Node.js 22.x
+- pnpm 10.13.1
+
 # 진행 상황
 
 ## ⚙️ 기본 인프라/보일러플레이트
