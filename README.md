@@ -37,6 +37,16 @@
    pnpm db:seed
    ```
 
+## Swagger 문서 & 타입 생성
+
+서버를 실행하면 `/docs` 경로에서 Swagger UI를 확인할 수 있습니다. OpenAPI 스펙은 `/api-json` 경로로 노출됩니다.
+
+스펙을 이용해 프런트엔드 타입을 생성하려면 [`openapi-typescript`](https://github.com/drwpow/openapi-typescript)를 사용할 수 있습니다:
+
+```bash
+npx openapi-typescript http://localhost:4000/api-json -o src/types/api.d.ts
+```
+
 # 진행 상황
 
 ## ⚙️ 기본 인프라/보일러플레이트
