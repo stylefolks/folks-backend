@@ -20,6 +20,19 @@
 - Node.js 22.x
 - pnpm 10.13.1
 
+## 환경 설정
+
+1. `.env.example` 파일을 복사해 `.env` 파일을 생성합니다.
+2. `DATABASE_URL`을 Supabase에서 제공하는 연결 문자열로 지정합니다.
+3. 필요 시 `JWT_SECRET`과 `PORT` 값을 수정합니다.
+4. 다음 명령어로 Prisma 스키마를 Supabase DB에 적용합니다.
+   ```bash
+   pnpm prisma db push
+   # 또는
+   pnpm prisma migrate deploy
+   ```
+5. Docker 사용 시 `.env` 파일에 설정한 `DATABASE_URL`이 자동으로 적용됩니다.
+
 # 진행 상황
 
 ## ⚙️ 기본 인프라/보일러플레이트
