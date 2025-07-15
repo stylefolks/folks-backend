@@ -29,9 +29,13 @@
    ```bash
    pnpm prisma db push
    # 또는
-   pnpm prisma migrate deploy
-   ```
+ pnpm prisma migrate deploy
+  ```
 5. Docker 사용 시 `.env` 파일에 설정한 `DATABASE_URL`이 자동으로 적용됩니다.
+6. 예시 데이터를 넣으려면 다음 명령어를 실행합니다.
+   ```bash
+   pnpm db:seed
+   ```
 
 # 진행 상황
 
