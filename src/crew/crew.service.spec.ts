@@ -145,9 +145,22 @@ describe('CrewService', () => {
 
     await service.list('popular');
 
-    expect(mockPrismaService.crew.findMany).toHaveBeenCalledWith({
-      orderBy: { members: { _count: 'desc' } },
-      include: { _count: { select: { members: true } } },
-    });
+    expect(mockPrismaService.crew.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        orderBy: { members: { _count: 'desc' } },
+        include: expect.objectContaining({
+          _count: { select: { members: true } },
+          crewTabs: {
+            where: { hashtag: { not: null } },
+            select: { hashtag: true },
+          },
+          events: expect.objectContaining({
+            orderBy: { date: 'asc' },
+            take: 1,
+            select: { title: true, date: true },
+          }),
+        }),
+      }),
+    );
   });
 });

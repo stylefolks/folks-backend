@@ -80,7 +80,10 @@ describe('CrewController (e2e)', () => {
         password: '1234',
       });
     const userId = signup.body.id as string;
-    await prisma.user.update({ where: { id: userId }, data: { status: 'ACTIVE' } });
+    await prisma.user.update({
+      where: { id: userId },
+      data: { status: 'ACTIVE' },
+    });
 
     const login = await request(app.getHttpServer())
       .post('/auth/login')
@@ -156,7 +159,7 @@ describe('CrewController (e2e)', () => {
     expect(res.status).toBe(200);
   });
 
-  it('/crew?sort=popular (GET)', async () => {
+  it('/crews?sort=popular (GET)', async () => {
     const server = app.getHttpServer();
 
     const s1 = await request(server)
@@ -197,7 +200,10 @@ describe('CrewController (e2e)', () => {
     const m1 = await request(server)
       .post('/auth/signup')
       .send({ email: 'mem1@test.com', username: 'mem1', password: '1234' });
-    await prisma.user.update({ where: { id: m1.body.id }, data: { status: 'ACTIVE' } });
+    await prisma.user.update({
+      where: { id: m1.body.id },
+      data: { status: 'ACTIVE' },
+    });
     const lm1 = await request(server)
       .post('/auth/login')
       .send({ email: 'mem1@test.com', password: '1234' });
@@ -208,7 +214,10 @@ describe('CrewController (e2e)', () => {
     const m2 = await request(server)
       .post('/auth/signup')
       .send({ email: 'mem2@test.com', username: 'mem2', password: '1234' });
-    await prisma.user.update({ where: { id: m2.body.id }, data: { status: 'ACTIVE' } });
+    await prisma.user.update({
+      where: { id: m2.body.id },
+      data: { status: 'ACTIVE' },
+    });
     const lm2 = await request(server)
       .post('/auth/login')
       .send({ email: 'mem2@test.com', password: '1234' });
@@ -216,10 +225,10 @@ describe('CrewController (e2e)', () => {
       .post(`/crew/${crew1Id}/join`)
       .set('Authorization', `Bearer ${lm2.body.accessToken}`);
 
-    const res = await request(server).get('/crew?sort=popular');
+    const res = await request(server).get('/crews?sort=popular');
     expect(res.status).toBe(200);
     expect(Array.isArray(res.body)).toBe(true);
     expect(res.body[0].id).toBe(crew1Id);
-    expect(res.body[0]._count.members).toBe(2);
+    expect(res.body[0].memberCount).toBe(2);
   });
 });

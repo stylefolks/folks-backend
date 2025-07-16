@@ -20,36 +20,36 @@ import { CreatePostDto } from 'src/post/dto/create-post.dto';
 import { PostType } from 'src/prisma/post-type';
 import { CrewStatus } from 'src/prisma/crew-status';
 
-@Controller('crew')
+@Controller()
 export class CrewController {
   constructor(
     private readonly crewService: CrewService,
     private readonly postService: PostService,
   ) {}
 
-  @Get()
+  @Get('crews')
   list(@Query('sort') sort?: string) {
     return this.crewService.list(sort);
   }
 
   @UseGuards(JwtAuthGuard)
-  @Post()
+  @Post('crew')
   create(@Body() dto: CreateCrewDto, @Req() req: RequestWithUser) {
     return this.crewService.create(dto, req.user.id);
   }
 
-  @Get(':id')
+  @Get('crew/:id')
   findOne(@Param('id') id: string) {
     return this.crewService.findOne(id);
   }
 
-  @Get(':id/posts')
+  @Get('crew/:id/posts')
   getCrewPosts(@Param('id') id: string) {
     return this.postService.getPosts({ crewId: id });
   }
 
   @UseGuards(JwtAuthGuard)
-  @Post(':id/posts')
+  @Post('crew/:id/posts')
   createCrewPost(
     @Param('id') id: string,
     @Body() dto: CreatePostDto,
@@ -62,7 +62,7 @@ export class CrewController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Patch(':id')
+  @Patch('crew/:id')
   update(
     @Param('id') id: string,
     @Body() dto: UpdateCrewDto,
@@ -72,7 +72,7 @@ export class CrewController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Patch(':id/status')
+  @Patch('crew/:id/status')
   updateStatus(
     @Param('id') id: string,
     @Body('status') status: CrewStatus,
@@ -82,7 +82,7 @@ export class CrewController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Patch(':id/transfer-ownership')
+  @Patch('crew/:id/transfer-ownership')
   transferOwnership(
     @Param('id') id: string,
     @Body('userId') newOwnerId: string,
@@ -92,7 +92,7 @@ export class CrewController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Delete(':id')
+  @Delete('crew/:id')
   remove(@Param('id') id: string, @Req() req: RequestWithUser) {
     return this.crewService.delete(id, req.user.id);
   }

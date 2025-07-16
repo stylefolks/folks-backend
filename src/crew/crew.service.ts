@@ -2,6 +2,7 @@ import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateCrewDto } from './dto/create-crew.dto';
 import { UpdateCrewDto } from './dto/update-crew.dto';
+import { CrewSummaryDto } from './dto/crew-summary.dto';
 import { CrewStatus } from 'src/prisma/crew-status';
 import { CrewMemberRole } from 'src/prisma/crew-member-role';
 import { UserRole } from 'src/prisma/user-role';
@@ -39,14 +40,34 @@ export class CrewService {
     });
   }
 
-  list(sort?: string) {
-    if (sort === 'popular') {
-      return this.prisma.crew.findMany({
-        orderBy: { members: { _count: 'desc' } },
-        include: { _count: { select: { members: true } } },
-      });
-    }
-    return this.prisma.crew.findMany();
+  async list(sort?: string): Promise<CrewSummaryDto[]> {
+    const crews = await this.prisma.crew.findMany({
+      orderBy: sort === 'popular' ? { members: { _count: 'desc' } } : undefined,
+      include: {
+        _count: { select: { members: true } },
+        crewTabs: {
+          where: { hashtag: { not: null } },
+          select: { hashtag: true },
+        },
+        events: {
+          where: { date: { gte: new Date() } },
+          orderBy: { date: 'asc' },
+          take: 1,
+          select: { title: true, date: true },
+        },
+      },
+    });
+
+    return crews.map((c) => ({
+      id: c.id,
+      name: c.name,
+      coverImage: c.avatarUrl ?? undefined,
+      tags: c.crewTabs.map((t) => t.hashtag as string),
+      memberCount: c._count.members,
+      upcomingEvent: c.events[0]
+        ? { title: c.events[0].title, date: c.events[0].date.toISOString() }
+        : undefined,
+    }));
   }
 
   findOne(id: string) {
