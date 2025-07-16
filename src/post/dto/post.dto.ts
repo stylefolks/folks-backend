@@ -1,3 +1,5 @@
+import { HashTag } from '@prisma/client';
+
 export type BrandMetaType = string;
 export type CrewMetaType = string;
 
@@ -36,7 +38,10 @@ export interface PostDto {
   id: string | number;
   title: string;
   content?: string;
-  hashtags?: string[];
+  hashtags?: (HashTag & {
+    postId: string;
+    hashTagId: string;
+  })[];
   author?: UserDto;
   createdAt?: string;
   crewName?: string;

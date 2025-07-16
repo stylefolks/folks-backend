@@ -153,7 +153,17 @@ export class PostService {
         skip: 1,
       }),
       include: {
-        hashtags: { include: { hashtags: true } },
+        hashtags: {
+          include: {
+            hashtags: {
+              select: {
+                name: true,
+                createdAt: true,
+                id: true,
+              },
+            },
+          },
+        },
         author: {
           select: {
             id: true,
@@ -189,7 +199,13 @@ export class PostService {
         typeof post.content === 'string'
           ? post.content
           : JSON.stringify(post.content),
-      hashtags: post.hashtags?.map((h) => h.hashtags.name),
+      hashtags: post.hashtags?.map((h) => ({
+        name: h.hashtags.name,
+        id: h.hashtags.id,
+        createdAt: h.hashtags.createdAt,
+        postId: h.postId,
+        hashTagId: h.hashTagId,
+      })),
       author: post.author && {
         id: post.author.id,
         email: post.author.email ?? undefined,
@@ -240,18 +256,99 @@ export class PostService {
   }
 
   async getPostById(postId: string) {
-    return this.prisma.post.findUnique({
+    const post = await this.prisma.post.findUnique({
       where: { id: postId },
       include: {
-        hashtags: true,
+        hashtags: {
+          include: {
+            hashtags: {
+              select: {
+                name: true,
+                createdAt: true,
+                id: true,
+              },
+            },
+          },
+        },
         author: {
           select: {
             id: true,
             username: true,
+            avatarUrl: true,
+            email: true,
+            bio: true,
+            role: true,
           },
         },
+        crew: {
+          select: {
+            id: true,
+            name: true,
+            avatarUrl: true,
+            description: true,
+            ownerId: true,
+          },
+        },
+        crewMentions: { include: { crew: true } },
+        _count: { select: { reactions: true, comments: true, viewLogs: true } },
       },
     });
+
+    if (!post) return null;
+
+    return {
+      id: post.id,
+      title: post.title,
+      content:
+        typeof post.content === 'string'
+          ? post.content
+          : JSON.stringify(post.content),
+      hashtags: post.hashtags?.map((h) => ({
+        name: h.hashtags.name,
+        id: h.hashtags.id,
+        createdAt: h.hashtags.createdAt,
+        postId: h.postId,
+        hashTagId: h.hashTagId,
+      })),
+      author: post.author && {
+        id: post.author.id,
+        email: post.author.email ?? undefined,
+        username: post.author.username,
+        bio: post.author.bio ?? undefined,
+        avatarUrl: post.author.avatarUrl ?? undefined,
+        role: post.author.role,
+      },
+      createdAt: post.createdAt?.toISOString(),
+      crewName: post.crew?.name,
+      likes: post._count?.reactions,
+      comments: post._count?.comments,
+      views: post._count?.viewLogs,
+      tags: post.hashtags?.map((h) => h.hashtags),
+      crew: [
+        ...(post.crew
+          ? [
+              {
+                id: post.crew.id,
+                name: post.crew.name,
+                avatarUrl: post.crew.avatarUrl ?? undefined,
+                description: post.crew.description ?? undefined,
+                ownerId: post.crew.ownerId,
+              },
+            ]
+          : []),
+        ...(post.crewMentions?.map((cm) => ({
+          id: cm.crew.id,
+          name: cm.crew.name,
+          avatarUrl: cm.crew.avatarUrl ?? undefined,
+          description: cm.crew.description ?? undefined,
+          ownerId: cm.crew.ownerId,
+        })) ?? []),
+      ],
+      likeCount: post._count?.reactions,
+      commentCount: post._count?.comments,
+      type: post.type,
+      // imageUrl, subtitle, brandMetaType, crewMetaType, date, image 등은 DB에 없으므로 제외
+    };
   }
 
   async updatePost(postId: string, dto: UpdatePostDto, userId: string) {
