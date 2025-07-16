@@ -5,6 +5,7 @@ import { CreatePostDto } from './dto/create-post.dto';
 import { PostType } from 'src/prisma/post-type';
 import { PostVisibility } from 'src/prisma/post-visibility';
 import { GetPostsDto } from './dto/get-posts.dto';
+import { PostDto } from './dto/post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { UserRole } from 'src/prisma/user-role';
 import { CrewMemberRole } from 'src/prisma/crew-member-role';
@@ -82,7 +83,7 @@ export class PostService {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         type,
         title,
-        content,
+        content: content as unknown as Prisma.InputJsonValue,
         isDraft,
         authorId: userId,
         ...(crewId && { crewId }),
@@ -110,7 +111,12 @@ export class PostService {
     });
   }
 
-  async getPosts(dto: GetPostsDto) {
+  async getPosts(
+    dto: GetPostsDto,
+  ): Promise<{
+    posts: PostDto[];
+    pageInfo: { totalCount: number; hasNextPage: boolean; nextCursor: string | null };
+  }> {
     const { take = '10', cursor, tags, crewId, mention, query, postType } = dto;
     const takeNum = parseInt(take, 10);
 
@@ -147,9 +153,28 @@ export class PostService {
         skip: 1,
       }),
       include: {
-        hashtags: true,
-        author: { select: { id: true, username: true } },
-        crewMentions: { include: { crew: true } }, // crewMentions를 객체로 명시
+        hashtags: { include: { hashtags: true } },
+        author: {
+          select: {
+            id: true,
+            username: true,
+            avatarUrl: true,
+            email: true,
+            bio: true,
+            role: true,
+          },
+        },
+        crew: {
+          select: {
+            id: true,
+            name: true,
+            avatarUrl: true,
+            description: true,
+            ownerId: true,
+          },
+        },
+        crewMentions: { include: { crew: true } },
+        _count: { select: { reactions: true, comments: true, viewLogs: true } },
       },
     });
 
@@ -157,8 +182,57 @@ export class PostService {
     const hasNextPage = posts.length > takeNum;
     const nextCursor = hasNextPage ? posts[takeNum].id : null;
 
+    const transformed: PostDto[] = posts.slice(0, takeNum).map((post) => ({
+      id: post.id,
+      title: post.title,
+      content:
+        typeof post.content === 'string'
+          ? post.content
+          : JSON.stringify(post.content),
+      hashtags: post.hashtags?.map((h) => h.hashtags.name),
+      author: post.author && {
+        id: post.author.id,
+        email: post.author.email ?? undefined,
+        username: post.author.username,
+        bio: post.author.bio ?? undefined,
+        avatarUrl: post.author.avatarUrl ?? undefined,
+        role: post.author.role,
+      },
+      createdAt: post.createdAt.toISOString(),
+      crewName: post.crew?.name,
+      likes: post._count?.reactions,
+      comments: post._count?.comments,
+      views: post._count?.viewLogs,
+      tags: post.hashtags?.map((h) => h.hashtags.name),
+      crew: [
+        ...(post.crew
+          ? [
+              {
+                id: post.crew.id,
+                name: post.crew.name,
+                avatarUrl: post.crew.avatarUrl ?? undefined,
+                description: post.crew.description ?? undefined,
+                ownerId: post.crew.ownerId,
+              },
+            ]
+          : []),
+        ...(
+          post.crewMentions?.map((cm) => ({
+            id: cm.crew.id,
+            name: cm.crew.name,
+            avatarUrl: cm.crew.avatarUrl ?? undefined,
+            description: cm.crew.description ?? undefined,
+            ownerId: cm.crew.ownerId,
+          })) ?? []
+        ),
+      ],
+      likeCount: post._count?.reactions,
+      commentCount: post._count?.comments,
+      type: post.type,
+    }));
+
     return {
-      posts: posts.slice(0, takeNum),
+      posts: transformed,
       pageInfo: {
         totalCount,
         hasNextPage,
@@ -193,8 +267,11 @@ export class PostService {
       throw new Error('Invalid post type');
     }
 
-    const { ...rest } = dto;
-    const data = { ...rest };
+    const { content: updateContent, ...rest } = dto;
+    const data: Prisma.PostUpdateInput = {
+      ...rest,
+      ...(updateContent && { content: updateContent as unknown as Prisma.InputJsonValue }),
+    };
 
     return this.prisma.post.update({
       where: { id: postId },
