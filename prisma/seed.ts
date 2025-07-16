@@ -17,20 +17,46 @@ function generateContent(title: string, imageUrl: string) {
     () => ({
       type: 'doc',
       content: [
-        { type: 'heading', attrs: { level: 2 }, content: [{ type: 'text', text: title }] },
-        { type: 'paragraph', content: [{ type: 'text', text: `Welcome to ${title}.` }] },
+        {
+          type: 'heading',
+          attrs: { level: 2 },
+          content: [{ type: 'text', text: title }],
+        },
+        {
+          type: 'paragraph',
+          content: [{ type: 'text', text: `Welcome to ${title}.` }],
+        },
         { type: 'image', attrs: { src: imageUrl } },
       ],
     }),
     () => ({
       type: 'doc',
       content: [
-        { type: 'paragraph', content: [{ type: 'text', text: `${title} example paragraph.` }] },
+        {
+          type: 'paragraph',
+          content: [{ type: 'text', text: `${title} example paragraph.` }],
+        },
         {
           type: 'bullet_list',
           content: [
-            { type: 'list_item', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'First' }] }] },
-            { type: 'list_item', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Second' }] }] },
+            {
+              type: 'list_item',
+              content: [
+                {
+                  type: 'paragraph',
+                  content: [{ type: 'text', text: 'First' }],
+                },
+              ],
+            },
+            {
+              type: 'list_item',
+              content: [
+                {
+                  type: 'paragraph',
+                  content: [{ type: 'text', text: 'Second' }],
+                },
+              ],
+            },
           ],
         },
         { type: 'image', attrs: { src: imageUrl } },
@@ -39,8 +65,14 @@ function generateContent(title: string, imageUrl: string) {
     () => ({
       type: 'doc',
       content: [
-        { type: 'paragraph', content: [{ type: 'text', text: `Random text for ${title}.` }] },
-        { type: 'paragraph', content: [{ type: 'text', text: 'Another paragraph.' }] },
+        {
+          type: 'paragraph',
+          content: [{ type: 'text', text: `Random text for ${title}.` }],
+        },
+        {
+          type: 'paragraph',
+          content: [{ type: 'text', text: 'Another paragraph.' }],
+        },
         { type: 'image', attrs: { src: imageUrl } },
       ],
     }),
