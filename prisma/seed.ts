@@ -5,10 +5,49 @@ import {
   PostType,
   CrewMemberRole,
   UserStatus,
+  Prisma,
 } from '@prisma/client';
+import { randomUUID } from 'crypto';
 import * as bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
+
+function generateContent(title: string, imageUrl: string) {
+  const templates = [
+    () => ({
+      type: 'doc',
+      content: [
+        { type: 'heading', attrs: { level: 2 }, content: [{ type: 'text', text: title }] },
+        { type: 'paragraph', content: [{ type: 'text', text: `Welcome to ${title}.` }] },
+        { type: 'image', attrs: { src: imageUrl } },
+      ],
+    }),
+    () => ({
+      type: 'doc',
+      content: [
+        { type: 'paragraph', content: [{ type: 'text', text: `${title} example paragraph.` }] },
+        {
+          type: 'bullet_list',
+          content: [
+            { type: 'list_item', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'First' }] }] },
+            { type: 'list_item', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Second' }] }] },
+          ],
+        },
+        { type: 'image', attrs: { src: imageUrl } },
+      ],
+    }),
+    () => ({
+      type: 'doc',
+      content: [
+        { type: 'paragraph', content: [{ type: 'text', text: `Random text for ${title}.` }] },
+        { type: 'paragraph', content: [{ type: 'text', text: 'Another paragraph.' }] },
+        { type: 'image', attrs: { src: imageUrl } },
+      ],
+    }),
+  ];
+  const tmpl = templates[Math.floor(Math.random() * templates.length)];
+  return tmpl();
+}
 
 async function main() {
   const passwordHash = await bcrypt.hash('password', 10);
@@ -106,17 +145,25 @@ async function main() {
         .map(() => pick(hashtags).id)
         .filter((v, idx, arr) => arr.indexOf(v) === idx); // unique
 
-      await prisma.post.create({
+      const assetId = randomUUID();
+      const imageUrl = `https://picsum.photos/seed/${assetId}/600/400`;
+      const content = generateContent(`${type} post ${i}`, imageUrl);
+
+      const post = await prisma.post.create({
         data: {
           type,
           title: `${type} post ${i}`,
-          content: { text: `Example content for ${type} post ${i}` },
+          content: content as unknown as Prisma.InputJsonValue,
           authorId,
           ...(crewId && { crewId }),
           hashtags: {
             create: tagIds.map((id) => ({ hashtags: { connect: { id } } })),
           },
         },
+      });
+
+      await prisma.imageAsset.create({
+        data: { id: assetId, userId: authorId, postId: post.id },
       });
     }
   }
