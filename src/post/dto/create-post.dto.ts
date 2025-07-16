@@ -1,3 +1,4 @@
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsString,
   IsEnum,
@@ -6,29 +7,38 @@ import {
   IsObject,
   IsArray,
 } from 'class-validator';
+
 import { Type } from 'class-transformer';
 import { PostType } from 'src/prisma/post-type';
+import { ContentDto } from './content.dto';
 
 export class CreatePostDto {
+  @ApiProperty({ enum: PostType })
   @IsEnum(PostType)
   type: PostType;
 
+  @ApiProperty()
   @IsString()
   title: string;
 
+  @ApiProperty({ type: ContentDto })
   @IsObject()
-  content: Record<string, any>; // ProseMirror JSON을 stringified 상태로 받는다고 가정
+  @Type(() => ContentDto)
+  content: ContentDto;
 
+  @ApiPropertyOptional({ type: 'boolean' })
   @IsOptional()
   @IsBoolean()
   isDraft?: boolean;
 
+  @ApiPropertyOptional({ type: [String] })
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
   @Type(() => String)
-  tagNames?: string[]; // 태그 이름 배열로 전달
+  tagNames?: string[];
 
+  @ApiPropertyOptional()
   @IsOptional()
   @IsString()
   crewId?: string;
