@@ -24,8 +24,10 @@ describe('HashtagService', () => {
     jest.clearAllMocks();
   });
 
-  it('calls prisma with default take', async () => {
-    mockPrisma.hashTag.findMany.mockResolvedValue([{ name: '#hot' }]);
+  it('calls prisma with default take and maps result', async () => {
+    mockPrisma.hashTag.findMany.mockResolvedValue([
+      { name: '#hot', _count: { postTags: 3 } },
+    ]);
 
     const result = await service.getHot();
 
@@ -34,7 +36,7 @@ describe('HashtagService', () => {
       take: 10,
       include: { _count: { select: { postTags: true } } },
     });
-    expect(result[0].name).toBe('#hot');
+    expect(result).toEqual([{ name: '#hot', postCount: 3 }]);
   });
 
   it('supports custom take value', async () => {
