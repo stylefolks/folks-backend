@@ -175,6 +175,7 @@ describe('PostService 서비스', () => {
           title: '크루 게시글',
           tags: [],
           author: {},
+          crew: { id: 'crew1', name: 'c1' },
           crewMentions: [],
           createdAt: new Date(),
         },
@@ -182,7 +183,7 @@ describe('PostService 서비스', () => {
       jest.spyOn(mockPrismaService.post, 'count').mockResolvedValue(1);
 
       const result = await service.getPosts(dto);
-      expect(result.posts[0].crewId).toBe('crew1');
+      expect(result.posts[0].crew?.[0].id).toBe('crew1');
     });
 
     it('tags, mention, query 등 다양한 조건으로 필터링이 가능해야 한다', async () => {
@@ -198,7 +199,7 @@ describe('PostService 서비스', () => {
           id: '3',
           title: '타이틀이름',
           tags: [{ name: '밥' }, { name: '고기' }],
-          crewMentions: [{ crewId: 'crew2' }],
+          crewMentions: [{ crew: { id: 'crew2', name: 'c2' } }],
           author: {},
           isDraft: false,
           createdAt: new Date(),
@@ -208,7 +209,7 @@ describe('PostService 서비스', () => {
 
       const result = await service.getPosts(dto);
       expect(result.posts[0].title).toContain('타이틀');
-      expect(result.posts[0].crewMentions[0].crewId).toBe('crew2');
+      expect(result.posts[0].crew?.[0].id).toBe('crew2');
     });
   });
 });
