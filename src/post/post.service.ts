@@ -34,7 +34,6 @@ export class PostService {
       throw new Error('Invalid post type');
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const type = dto.type;
 
     if (type === PostType.COLUMN) {
@@ -80,7 +79,6 @@ export class PostService {
 
     return this.prisma.post.create({
       data: {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         type,
         title,
         content: content as unknown as Prisma.InputJsonValue,
@@ -111,11 +109,13 @@ export class PostService {
     });
   }
 
-  async getPosts(
-    dto: GetPostsDto,
-  ): Promise<{
+  async getPosts(dto: GetPostsDto): Promise<{
     posts: PostDto[];
-    pageInfo: { totalCount: number; hasNextPage: boolean; nextCursor: string | null };
+    pageInfo: {
+      totalCount: number;
+      hasNextPage: boolean;
+      nextCursor: string | null;
+    };
   }> {
     const { take = '10', cursor, tags, crewId, mention, query, postType } = dto;
     const takeNum = parseInt(take, 10);
@@ -216,15 +216,13 @@ export class PostService {
               },
             ]
           : []),
-        ...(
-          post.crewMentions?.map((cm) => ({
-            id: cm.crew.id,
-            name: cm.crew.name,
-            avatarUrl: cm.crew.avatarUrl ?? undefined,
-            description: cm.crew.description ?? undefined,
-            ownerId: cm.crew.ownerId,
-          })) ?? []
-        ),
+        ...(post.crewMentions?.map((cm) => ({
+          id: cm.crew.id,
+          name: cm.crew.name,
+          avatarUrl: cm.crew.avatarUrl ?? undefined,
+          description: cm.crew.description ?? undefined,
+          ownerId: cm.crew.ownerId,
+        })) ?? []),
       ],
       likeCount: post._count?.reactions,
       commentCount: post._count?.comments,
@@ -270,7 +268,9 @@ export class PostService {
     const { content: updateContent, ...rest } = dto;
     const data: Prisma.PostUpdateInput = {
       ...rest,
-      ...(updateContent && { content: updateContent as unknown as Prisma.InputJsonValue }),
+      ...(updateContent && {
+        content: updateContent as unknown as Prisma.InputJsonValue,
+      }),
     };
 
     return this.prisma.post.update({
