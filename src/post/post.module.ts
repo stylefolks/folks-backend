@@ -6,10 +6,11 @@ import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from 'src/auth/strategy/jwt.strategy';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { AuthModule } from 'src/auth/auth.module';
+import { forwardRef } from '@nestjs/common';
 import { AuthService } from 'src/auth/auth.service';
 
 @Module({
-  imports: [AuthModule, JwtModule],
+  imports: [forwardRef(() => AuthModule), JwtModule],
   controllers: [PostController],
   providers: [
     PostService,

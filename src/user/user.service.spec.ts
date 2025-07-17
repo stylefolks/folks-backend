@@ -32,28 +32,6 @@ describe('UserService', () => {
     jest.clearAllMocks();
   });
 
-  it('getUserById retrieves user with selected fields', async () => {
-    mockPrismaService.user.findUnique.mockResolvedValue({
-      id: '1',
-      username: 'u',
-    });
-
-    const result = await service.getUserById('1');
-
-    expect(mockPrismaService.user.findUnique).toHaveBeenCalledWith({
-      where: { id: '1' },
-      select: {
-        id: true,
-        username: true,
-        avatarUrl: true,
-        bio: true,
-        role: true,
-        status: true,
-      },
-    });
-    expect(result?.id).toBe('1');
-  });
-
   it('getProfileById returns profile with posts', async () => {
     mockPrismaService.user.findUnique.mockResolvedValue({
       id: '1',
@@ -81,7 +59,7 @@ describe('UserService', () => {
       pageInfo: { totalCount: 0, hasNextPage: false, nextCursor: null },
     });
 
-    const result = await service.getProfileById('1');
+    const result = await service.getProfileByUserName('1');
 
     expect(mockPrismaService.user.findUnique).toHaveBeenCalled();
     expect(mockPostService.getPosts).toHaveBeenCalledWith({

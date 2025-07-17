@@ -17,13 +17,22 @@ import { ApproveBrandRoleDto } from './dto/approve-brand-role.dto';
 import { UserService } from './user.service';
 import { RequestWithUser } from 'src/common/types/request-with-user';
 
-@Controller('users')
+@Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Get(':id')
   getUser(@Param('id') id: string) {
-    return this.userService.getProfileById(id);
+    return this.userService.getProfileByUserName(id);
+  }
+  @Get(':id/followers')
+  getFollower(@Param('id') id: string) {
+    return this.userService.getFollower(id);
+  }
+
+  @Get(':id/following')
+  getFollowing(@Param('id') id: string) {
+    return this.userService.getFollowing(id);
   }
 
   @UseGuards(JwtAuthGuard)

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserStatus } from 'src/prisma/user-status';
@@ -13,23 +13,9 @@ export class UserService {
     private readonly postService: PostService,
   ) {}
 
-  getUserById(userId: string) {
-    return this.prisma.user.findUnique({
-      where: { id: userId },
-      select: {
-        id: true,
-        username: true,
-        avatarUrl: true,
-        bio: true,
-        role: true,
-        status: true,
-      },
-    });
-  }
-
-  async getProfileById(userId: string): Promise<ProfileDto | null> {
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId },
+  async getProfileByUserName(userName: string): Promise<ProfileDto | null> {
+    const user = await this.prisma.user.findFirst({
+      where: { username: userName },
       select: {
         id: true,
         username: true,
@@ -60,11 +46,11 @@ export class UserService {
       },
     });
 
-    if (!user) return null;
+    if (!user) throw new NotFoundException('User not found');
 
     const postResult = await this.postService.getPosts({
       take: '10',
-      authorId: userId,
+      authorId: user.id,
     });
     const posts = {
       posts: postResult.posts,
@@ -83,7 +69,7 @@ export class UserService {
       memberCount: m.crew._count.members,
       description: m.crew.description ?? undefined,
       tags: m.crew.crewTabs.map((t) => t.hashtag as string).filter(Boolean),
-      links: (m.crew.externalLinks as any) ?? undefined,
+      links: [{ title: '', url: '' }], //타입에러로 임시값 반환
       owner: {
         id: m.crew.owner.id,
         username: m.crew.owner.username,
@@ -138,6 +124,30 @@ export class UserService {
     return this.prisma.user.update({
       where: { id: userId },
       data: { role: UserRole.BRAND, status: UserStatus.ACTIVE },
+    });
+  }
+
+  async getFollower(userId: string) {
+    return this.prisma.user.findMany({
+      where: { following: { some: { followingId: userId } } },
+      select: {
+        id: true,
+        username: true,
+        avatarUrl: true,
+        bio: true,
+      },
+    });
+  }
+
+  async getFollowing(userId: string) {
+    return this.prisma.user.findMany({
+      where: { followers: { some: { followerId: userId } } },
+      select: {
+        id: true,
+        username: true,
+        avatarUrl: true,
+        bio: true,
+      },
     });
   }
 }
