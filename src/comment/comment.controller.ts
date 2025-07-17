@@ -14,6 +14,7 @@ import { RequestWithUser } from 'src/common/types/request-with-user';
 import { CommentService } from './comment.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
+import { PostDetailCommentDto } from 'src/post/dto/post-detail-comment.dto';
 
 @Controller('comment')
 export class CommentController {
@@ -36,7 +37,7 @@ export class CommentController {
     @Param('id') id: string,
     @Body() dto: UpdateCommentDto,
     @Req() req: RequestWithUser,
-  ) {
+  ): Promise<PostDetailCommentDto> {
     return this.commentService.updateComment(id, dto, req.user.id);
   }
 

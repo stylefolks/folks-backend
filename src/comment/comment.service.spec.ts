@@ -48,7 +48,12 @@ describe('CommentService 서비스', () => {
       id: '1',
       authorId: 'u1',
     });
-    mockPrisma.comment.update.mockResolvedValue({ id: '1', content: 'new' });
+    mockPrisma.comment.update.mockResolvedValue({
+      id: '1',
+      content: 'new',
+      createdAt: new Date('2024-01-01T00:00:00Z'),
+      author: { id: 'u1', username: 'test' },
+    });
 
     const dto: UpdateCommentDto = { content: 'new' };
     const result = await service.updateComment('1', dto, 'u1');
@@ -56,8 +61,19 @@ describe('CommentService 서비스', () => {
     expect(mockPrisma.comment.update).toHaveBeenCalledWith({
       where: { id: '1' },
       data: dto,
+      select: {
+        id: true,
+        content: true,
+        createdAt: true,
+        author: { select: { id: true, username: true } },
+      },
     });
-    expect(result.content).toBe('new');
+    expect(result).toEqual({
+      id: '1',
+      content: 'new',
+      createdAt: '2024-01-01T00:00:00.000Z',
+      author: { id: 'u1', username: 'test' },
+    });
   });
 
   it('작성자가 아닌 경우 수정 시 예외 발생', async () => {
