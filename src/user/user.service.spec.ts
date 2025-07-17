@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UserService } from './user.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { PostService } from 'src/post/post.service';
 import { UserStatus } from 'src/prisma/user-status';
 import { UserRole } from 'src/prisma/user-role';
 
@@ -10,6 +11,7 @@ const mockPrismaService = {
     update: jest.fn(),
   },
 };
+const mockPostService = { getPosts: jest.fn() };
 
 describe('UserService', () => {
   let service: UserService;
@@ -19,6 +21,7 @@ describe('UserService', () => {
       providers: [
         UserService,
         { provide: PrismaService, useValue: mockPrismaService },
+        { provide: PostService, useValue: mockPostService },
       ],
     }).compile();
 
@@ -47,6 +50,43 @@ describe('UserService', () => {
         role: true,
         status: true,
       },
+    });
+    expect(result?.id).toBe('1');
+  });
+
+  it('getProfileById returns profile with posts', async () => {
+    mockPrismaService.user.findUnique.mockResolvedValue({
+      id: '1',
+      username: 'u',
+      avatarUrl: 'a',
+      bio: 'b',
+      crewMemberships: [
+        {
+          crew: {
+            id: 'c1',
+            name: 'crew',
+            avatarUrl: null,
+            description: null,
+            _count: { members: 1 },
+            crewTabs: [],
+            owner: { id: 'o1', username: 'owner', avatarUrl: null },
+            events: [],
+            externalLinks: null,
+          },
+        },
+      ],
+    });
+    mockPostService.getPosts.mockResolvedValue({
+      posts: [],
+      pageInfo: { totalCount: 0, hasNextPage: false, nextCursor: null },
+    });
+
+    const result = await service.getProfileById('1');
+
+    expect(mockPrismaService.user.findUnique).toHaveBeenCalled();
+    expect(mockPostService.getPosts).toHaveBeenCalledWith({
+      take: '10',
+      authorId: '1',
     });
     expect(result?.id).toBe('1');
   });

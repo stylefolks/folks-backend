@@ -117,11 +117,21 @@ export class PostService {
       nextCursor: string | null;
     };
   }> {
-    const { take = '10', cursor, tags, crewId, mention, query, postType } = dto;
+    const {
+      take = '10',
+      cursor,
+      tags,
+      crewId,
+      mention,
+      query,
+      postType,
+      authorId,
+    } = dto;
     const takeNum = parseInt(take, 10);
 
     const where: Prisma.PostWhereInput = {
       isDraft: false,
+      ...(authorId && { authorId }),
       ...(postType && { type: postType }),
       ...(tags &&
         tags?.length > 0 && {
