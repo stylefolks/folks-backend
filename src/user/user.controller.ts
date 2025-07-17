@@ -23,7 +23,7 @@ export class UserController {
 
   @Get(':id')
   getUser(@Param('id') id: string) {
-    return this.userService.getUserById(id);
+    return this.userService.getProfileById(id);
   }
 
   @UseGuards(JwtAuthGuard)

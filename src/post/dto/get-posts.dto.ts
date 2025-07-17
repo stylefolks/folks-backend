@@ -51,4 +51,9 @@ export class GetPostsDto {
   @IsOptional()
   @IsString()
   query?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  authorId?: string;
 }

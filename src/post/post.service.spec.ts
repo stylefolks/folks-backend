@@ -212,6 +212,26 @@ describe('PostService 서비스', () => {
       expect(result.posts[0].title).toContain('타이틀');
       expect(result.posts[0].crew?.[0].id).toBe('crew2');
     });
+
+    it('authorId로 필터링된 게시글만 반환해야 한다', async () => {
+      const dto = { take: '1', authorId: 'user1' } as any;
+      jest.spyOn(mockPrismaService.post, 'findMany').mockResolvedValue([
+        {
+          id: '4',
+          authorId: 'user1',
+          title: '사용자 글',
+          tags: [],
+          author: {},
+          crewMentions: [],
+          createdAt: new Date(),
+          isDraft: false,
+        },
+      ]);
+      jest.spyOn(mockPrismaService.post, 'count').mockResolvedValue(1);
+
+      const result = await service.getPosts(dto);
+      expect(result.posts[0].id).toBe('4');
+    });
   });
 
   describe('getPostComments', () => {
