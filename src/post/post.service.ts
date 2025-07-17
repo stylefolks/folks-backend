@@ -184,7 +184,13 @@ export class PostService {
           },
         },
         crewMentions: { include: { crew: true } },
-        _count: { select: { reactions: true, comments: true, viewLogs: true } },
+        _count: {
+          select: {
+            reactions: true,
+            comments: { where: { parentCommentId: null } },
+            viewLogs: true,
+          },
+        },
       },
     });
 
@@ -290,7 +296,13 @@ export class PostService {
           },
         },
         crewMentions: { include: { crew: true } },
-        _count: { select: { reactions: true, comments: true, viewLogs: true } },
+        _count: {
+          select: {
+            reactions: true,
+            comments: { where: { parentCommentId: null } },
+            viewLogs: true,
+          },
+        },
       },
     });
 
