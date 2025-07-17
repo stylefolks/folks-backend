@@ -48,6 +48,12 @@ export class PostController {
     return this.postService.getPostById(id);
   }
 
+  @Get(':id/comment')
+  @ApiOperation({ summary: '게시글 댓글 조회' })
+  async getPostComments(@Param('id') id: string) {
+    return this.postService.getPostComments(id);
+  }
+
   @UseGuards(JwtAuthGuard)
   @Patch(':id')
   @ApiOperation({ summary: '게시글 수정' })

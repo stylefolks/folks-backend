@@ -407,6 +407,39 @@ export class PostService {
     return { mentions: this.extractMentions(post.content) };
   }
 
+  async getPostComments(postId: string) {
+    const comments = await this.prisma.comment.findMany({
+      where: { postId, parentCommentId: null },
+      orderBy: { createdAt: 'asc' },
+      include: {
+        author: {
+          select: {
+            id: true,
+            username: true,
+            avatarUrl: true,
+            email: true,
+            bio: true,
+            role: true,
+          },
+        },
+      },
+    });
+
+    return comments.map((c) => ({
+      id: c.id,
+      author: {
+        id: c.author.id,
+        email: c.author.email ?? undefined,
+        username: c.author.username ?? undefined,
+        bio: c.author.bio ?? undefined,
+        avatarUrl: c.author.avatarUrl ?? undefined,
+        role: c.author.role,
+      },
+      createdAt: c.createdAt.toISOString(),
+      content: c.content,
+    }));
+  }
+
   async deletePost(postId: string, userId: string) {
     const post = await this.prisma.post.findUnique({ where: { id: postId } });
 
