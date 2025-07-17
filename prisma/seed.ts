@@ -164,6 +164,7 @@ async function main() {
 
   // Create posts by type
   const postTypes: PostType[] = [PostType.TALK, PostType.COLUMN, PostType.CREW];
+  const posts = [] as { id: string }[];
   for (const type of postTypes) {
     for (let i = 1; i <= 5; i++) {
       const authorId = pick([
@@ -197,7 +198,49 @@ async function main() {
       await prisma.imageAsset.create({
         data: { id: assetId, userId: authorId, postId: post.id },
       });
+
+      posts.push({ id: post.id });
     }
+  }
+
+  // Create comments for posts
+  for (const { id: postId } of posts) {
+    const comment1 = await prisma.comment.create({
+      data: {
+        postId,
+        authorId: pick([
+          ...users[UserRole.USER],
+          ...users[UserRole.INFLUENCER],
+          ...users[UserRole.BRAND],
+        ]),
+        content: 'Great post!',
+      },
+    });
+
+    await prisma.comment.create({
+      data: {
+        postId,
+        parentCommentId: comment1.id,
+        authorId: pick([
+          ...users[UserRole.USER],
+          ...users[UserRole.INFLUENCER],
+          ...users[UserRole.BRAND],
+        ]),
+        content: 'I agree!',
+      },
+    });
+
+    await prisma.comment.create({
+      data: {
+        postId,
+        authorId: pick([
+          ...users[UserRole.USER],
+          ...users[UserRole.INFLUENCER],
+          ...users[UserRole.BRAND],
+        ]),
+        content: 'Nice read.',
+      },
+    });
   }
 
   console.log('Seeding completed');
