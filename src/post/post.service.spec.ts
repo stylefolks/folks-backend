@@ -18,6 +18,7 @@ const mockPrismaService = {
   user: { findUnique: jest.fn() },
   crew: { findUnique: jest.fn() },
   crewMember: { findUnique: jest.fn() },
+  comment: { findMany: jest.fn() },
 };
 
 describe('PostService 서비스', () => {
@@ -142,7 +143,7 @@ describe('PostService 서비스', () => {
     );
   });
 
-  describe.only('getPosts', () => {
+  describe('getPosts', () => {
     it('페이지네이션이 정상적으로 동작해야 한다', async () => {
       jest.spyOn(mockPrismaService.post, 'findMany').mockResolvedValue([
         {
@@ -210,6 +211,44 @@ describe('PostService 서비스', () => {
       const result = await service.getPosts(dto);
       expect(result.posts[0].title).toContain('타이틀');
       expect(result.posts[0].crew?.[0].id).toBe('crew2');
+    });
+  });
+
+  describe('getPostComments', () => {
+    it('게시글의 댓글을 조회할 수 있다', async () => {
+      const now = new Date();
+      mockPrismaService.comment.findMany.mockResolvedValue([
+        {
+          id: 'c1',
+          content: 'hello',
+          createdAt: now,
+          author: { id: 'u1', username: 'tester', email: 'e' },
+        },
+      ]);
+
+      const result = await service.getPostComments('p1');
+
+      expect(mockPrismaService.comment.findMany).toHaveBeenCalledWith({
+        where: { postId: 'p1', parentCommentId: null },
+        orderBy: { createdAt: 'asc' },
+        include: {
+          author: {
+            select: {
+              id: true,
+              username: true,
+              avatarUrl: true,
+              email: true,
+              bio: true,
+              role: true,
+            },
+          },
+        },
+      });
+
+      expect(result[0].id).toBe('c1');
+      expect(result[0].createdAt).toBe(now.toISOString());
+      expect(result[0].content).toBe('hello');
+      expect(result[0].author.username).toBe('tester');
     });
   });
 });
