@@ -1,4 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
@@ -15,7 +16,7 @@ export class AuthService {
 
   private emailCodes = new Map<string, { code: string; expires: Date }>();
 
-  async login(email: string, password: string) {
+  async login(email: string, password: string, res: Response) {
     const user = await this.prisma.user.findFirst({ where: { email } });
     if (!user) {
       throw new HttpException('Invalid credentials', HttpStatus.NOT_FOUND);
@@ -39,6 +40,12 @@ export class AuthService {
         expiresAt,
       },
     });
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
     const userRes: Pick<UserDto, 'id' | 'email' | 'username' | 'role'> = {
       id: user.id,
       email: user.email,
@@ -48,7 +55,6 @@ export class AuthService {
     return {
       user: userRes,
       accessToken,
-      refreshToken,
     };
   }
   // RefreshToken으로 accessToken 재발급

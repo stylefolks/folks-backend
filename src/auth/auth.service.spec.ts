@@ -5,6 +5,7 @@ import { AuthService } from './auth.service';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { HttpException } from '@nestjs/common';
+import { Response } from 'express';
 
 const mockPrisma = {
   user: {
@@ -41,9 +42,10 @@ describe('AuthService', () => {
   });
 
   describe('login', () => {
+    const res = { cookie: jest.fn() } as unknown as Response;
     it('should throw if user not found', async () => {
       mockPrisma.user.findFirst.mockResolvedValue(null);
-      await expect(service.login('test@test.com', 'pw')).rejects.toThrow(
+      await expect(service.login('test@test.com', 'pw', res)).rejects.toThrow(
         'Invalid credentials',
       );
     });
@@ -53,7 +55,7 @@ describe('AuthService', () => {
         status: UserStatus.ACTIVE,
       });
       jest.spyOn(require('bcryptjs'), 'compare').mockResolvedValue(false);
-      await expect(service.login('test@test.com', 'pw')).rejects.toThrow(
+      await expect(service.login('test@test.com', 'pw', res)).rejects.toThrow(
         'Invalid credentials',
       );
     });
@@ -63,7 +65,7 @@ describe('AuthService', () => {
         status: UserStatus.INACTIVE,
       });
       jest.spyOn(require('bcryptjs'), 'compare').mockResolvedValue(true);
-      await expect(service.login('test@test.com', 'pw')).rejects.toThrow(
+      await expect(service.login('test@test.com', 'pw', res)).rejects.toThrow(
         'Email not verified',
       );
     });
@@ -78,9 +80,8 @@ describe('AuthService', () => {
       });
       jest.spyOn(require('bcryptjs'), 'compare').mockResolvedValue(true);
       mockPrisma.refreshToken.create.mockResolvedValue({});
-      const result = await service.login('test@test.com', 'pw');
+      const result = await service.login('test@test.com', 'pw', res);
       expect(result).toHaveProperty('accessToken');
-      expect(result).toHaveProperty('refreshToken');
       expect(result).toHaveProperty('user');
       expect(result.user).toMatchObject({
         id: '1',
@@ -88,6 +89,11 @@ describe('AuthService', () => {
         username: 'u',
         role: 'USER',
       });
+      expect(res.cookie).toHaveBeenCalledWith(
+        'refreshToken',
+        expect.any(String),
+        expect.objectContaining({ httpOnly: true }),
+      );
     });
   });
 

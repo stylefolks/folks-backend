@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
+import { Response, Request } from 'express';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './guard/jwt-auth.guard';
 import { RequestWithUser } from 'src/common/types/request-with-user';
@@ -26,9 +35,12 @@ export class AuthController {
   }
 
   @Post('login')
-  async login(@Body() loginDto: LoginDto) {
+  async login(
+    @Body() loginDto: LoginDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     const { email, password } = loginDto;
-    return await this.authService.login(email, password);
+    return await this.authService.login(email, password, res);
   }
 
   @Post('request-email-verification')
@@ -40,5 +52,19 @@ export class AuthController {
   verifyEmail(@Body() dto: VerifyEmailDto) {
     const { email, code } = dto;
     return this.authService.verifyEmail(email, code);
+  }
+
+  @Post('refresh')
+  refresh(@Req() req: Request) {
+    const refreshToken = req.cookies?.refreshToken;
+    return this.authService.refresh(refreshToken);
+  }
+
+  @Post('logout')
+  async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
+    const refreshToken = req.cookies?.refreshToken;
+    const result = await this.authService.logout(refreshToken);
+    res.clearCookie('refreshToken');
+    return result;
   }
 }
