@@ -21,18 +21,18 @@ import { RequestWithUser } from 'src/common/types/request-with-user';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Get(':id')
-  getUser(@Param('id') id: string) {
-    return this.userService.getProfileByUserName(id);
+  @Get(':username')
+  getUserByName(@Param('username') username: string) {
+    return this.userService.getProfileByUserName(username);
   }
-  @Get(':id/followers')
-  getFollower(@Param('id') id: string) {
-    return this.userService.getFollower(id);
+  @Get(':username/followers')
+  getFollower(@Param('username') username: string) {
+    return this.userService.getFollower(username);
   }
 
-  @Get(':id/following')
-  getFollowing(@Param('id') id: string) {
-    return this.userService.getFollowing(id);
+  @Get(':username/following')
+  getFollowing(@Param('username') username: string) {
+    return this.userService.getFollowing(username);
   }
 
   @UseGuards(JwtAuthGuard)

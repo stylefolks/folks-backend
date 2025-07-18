@@ -110,6 +110,16 @@ model User {
   comments        Comment[] // ★ 추가: 댓글
   receivedReports ContentReport[] @relation("ReportTargetUser") // ★ 추가: 자기 자신이 타겟이 된 리포트(아래 설명)
   createdAt       DateTime        @default(now())
+  refreshTokens   RefreshToken[]
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  createdAt DateTime @default(now())
+  expiresAt DateTime
 }
 
 model Follow {

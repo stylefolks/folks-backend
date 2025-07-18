@@ -9,6 +9,7 @@ const mockPrismaService = {
   user: {
     findUnique: jest.fn(),
     update: jest.fn(),
+    findFirst: jest.fn(),
   },
 };
 const mockPostService = { getPosts: jest.fn() };
@@ -33,7 +34,7 @@ describe('UserService', () => {
   });
 
   it('getProfileById returns profile with posts', async () => {
-    mockPrismaService.user.findUnique.mockResolvedValue({
+    mockPrismaService.user.findFirst.mockResolvedValue({
       id: '1',
       username: 'u',
       avatarUrl: 'a',
@@ -59,9 +60,9 @@ describe('UserService', () => {
       pageInfo: { totalCount: 0, hasNextPage: false, nextCursor: null },
     });
 
-    const result = await service.getProfileByUserName('1');
+    const result = await service.getProfileByUserName('u');
 
-    expect(mockPrismaService.user.findUnique).toHaveBeenCalled();
+    expect(mockPrismaService.user.findFirst).toHaveBeenCalled();
     expect(mockPostService.getPosts).toHaveBeenCalledWith({
       take: '10',
       authorId: '1',
