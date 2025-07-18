@@ -7,7 +7,6 @@ export interface UserDto {
   id?: string;
   email?: string;
   username?: string;
-  nickname?: string;
   bio?: string;
   imageUrl?: string;
   website?: string;

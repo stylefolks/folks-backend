@@ -1,6 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
+import { UserDto } from 'src/post/dto/post.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UserStatus } from 'src/prisma/user-status';
 
@@ -34,8 +35,14 @@ export class AuthService {
 
     const payload = { sub: user.id, email: user.email };
     const accessToken = this.jwtService.sign(payload);
-
+    const userRes: Pick<UserDto, 'id' | 'email' | 'username' | 'role'> = {
+      id: user.id,
+      email: user.email,
+      username: user.username,
+      role: user.role,
+    };
     return {
+      user: userRes,
       accessToken,
     };
   }
@@ -64,7 +71,10 @@ export class AuthService {
   async verifyEmail(email: string, code: string) {
     const record = this.emailCodes.get(email);
     if (!record || record.code !== code || record.expires < new Date()) {
-      throw new HttpException('Invalid verification code', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        'Invalid verification code',
+        HttpStatus.BAD_REQUEST,
+      );
     }
     await this.prisma.user.update({
       where: { email },
